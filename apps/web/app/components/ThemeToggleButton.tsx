@@ -4,36 +4,14 @@ import { useTheme } from 'next-themes';
 import { Sun, Moon } from "lucide-react";
 import { useEffect, useState } from 'react';
 
-/**
- * ThemeToggleButton - Reusable dark mode toggle button
- * 
- * Features:
- * - Uses next-themes for zero-flash dark mode
- * - Shows sun icon in dark mode (click to switch to light)
- * - Shows moon icon in light mode (click to switch to dark)
- * - Handles SSR/hydration with mounted state
- * - Smooth transitions and hover effects
- * 
- * Fallback Strategy:
- * 1. Shows placeholder during SSR to prevent hydration mismatch
- * 2. Renders actual button after client-side mount
- * 3. Gracefully handles theme resolution
- * 
- * Usage:
- * ```tsx
- * <ThemeToggleButton />
- * ```
- */
 export function ThemeToggleButton() {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Only render after mounting to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Show placeholder during SSR/hydration to prevent layout shift
   if (!mounted) {
     return (
       <div 
@@ -43,7 +21,6 @@ export function ThemeToggleButton() {
     );
   }
 
-  // Resolve the actual theme being displayed
   const currentTheme = theme === 'system' ? systemTheme : theme;
   const isDark = currentTheme === 'dark';
 
