@@ -18,7 +18,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
+import { ThemeToggleButton } from '@/components/ui/ThemeToggleButton';
 
 // ============================================================================
 // Reusable Components

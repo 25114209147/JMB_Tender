@@ -30,14 +30,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
+import type { UserData } from "@/data/sidebar-data"
+
 export function NavUser({
   user,
 }: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
+  user: UserData
 }) {
   const { isMobile } = useSidebar()
   const initials = user.name.split(" ").map(n => n[0]).join("").toUpperCase()
