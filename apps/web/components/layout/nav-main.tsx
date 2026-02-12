@@ -31,7 +31,7 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-      <SidebarMenu className="px-3 space-y-10">
+      <SidebarMenu className="space-y-2">
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0
           const isActive = pathname === item.url || pathname.startsWith(item.url + "/")
