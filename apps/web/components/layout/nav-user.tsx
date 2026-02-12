@@ -34,8 +34,10 @@ import type { UserData } from "@/data/sidebar-data"
 
 export function NavUser({
   user,
+  hideTextOnMobile = false,
 }: {
   user: UserData
+  hideTextOnMobile?: boolean
 }) {
   const { isMobile } = useSidebar()
   const initials = user.name.split(" ").map(n => n[0]).join("").toUpperCase()
@@ -53,11 +55,11 @@ export function NavUser({
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium text-foreground">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
+                <span className={`truncate font-medium text-foreground ${hideTextOnMobile ? 'hidden md:block' : ''}`}>{user.name}</span>
+                <span className={`truncate text-xs text-muted-foreground ${hideTextOnMobile ? 'hidden md:block' : ''}`}>{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-2 flex-shrink-0 size-4 md:ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

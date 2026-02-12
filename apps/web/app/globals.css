@@ -275,6 +275,14 @@ a:hover {
   padding-top: 1rem !important; /* 24px */
 }
 
+/* Mobile sidebar padding - ensure it applies */
+[data-mobile="true"] [data-slot="sidebar-inner"],
+[data-mobile="true"] > div {
+  padding-left: 1.5rem !important; /* 24px */
+  padding-right: 1.5rem !important; /* 24px */
+  padding-top: 1.5rem !important; /* 24px */
+}
+
 /* When collapsed, remove horizontal padding */
 [data-state="collapsed"] [data-slot="sidebar-inner"] {
   padding-left: 0.5rem !important; /* 8px */
