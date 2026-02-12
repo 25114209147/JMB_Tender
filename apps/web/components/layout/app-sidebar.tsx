@@ -16,13 +16,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props} >
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-4 border-b">
+        <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <Building2 className="h-4 w-4" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
             <span className="truncate font-semibold text-primary">JMB Tender</span>
-            <span className="truncate text-xs text-muted-foreground">Enterprise</span>
+            {/* <span className="truncate text-xs text-muted-foreground">Enterprise</span> */}
           </div>
         </div>
       </SidebarHeader>
