@@ -46,7 +46,7 @@
   --sidebar-accent: oklch(0.968 0.007 247.896);
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.8782 0.0235 196.73);
-  /* --sidebar-ring: oklch(0.704 0.04 256.788); */
+  --sidebar-ring: oklch(0.704 0.04 256.788);
 }
 
 /* Dark mode variables: Applied when next-themes adds .dark class to <html>*/
@@ -196,8 +196,8 @@ a:hover {
    ============================================ */
 
 :focus-visible {
-  outline: 2px solid var(--color-primary-500);
-  outline-offset: 2px;
+  outline: none;
+  outline-offset: 0;
 }
 
 /* ============================================
@@ -260,7 +260,7 @@ a:hover {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
@@ -280,3 +280,5 @@ a:hover {
   padding-left: 0.5rem !important; /* 8px */
   padding-right: 0.5rem !important; /* 8px */
 }
+
+
