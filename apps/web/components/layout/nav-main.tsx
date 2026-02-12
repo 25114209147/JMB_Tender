@@ -31,7 +31,7 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarMenu className="px-3 space-y-10">
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0
           const isActive = pathname === item.url || pathname.startsWith(item.url + "/")
@@ -39,9 +39,9 @@ export function NavMain({
           if (!hasSubItems) {
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
-                  <Link href={item.url}>
-                    {item.icon && <item.icon />}
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActive} className="pl-4">
+                  <Link href={item.url} className="cursor-pointer ">
+                    {item.icon && <item.icon className="text-primary" />}
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -58,8 +58,8 @@ export function NavMain({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-                    {item.icon && <item.icon />}
+                  <SidebarMenuButton tooltip={item.title} isActive={isActive} className="cursor-pointer">
+                    {item.icon && <item.icon className="text-primary" />}
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
@@ -71,7 +71,7 @@ export function NavMain({
                       return (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild isActive={isSubActive}>
-                            <Link href={subItem.url}>
+                            <Link href={subItem.url} className="cursor-pointer">
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>
