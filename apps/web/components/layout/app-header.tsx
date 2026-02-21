@@ -7,7 +7,8 @@ import { NavUser } from "@/components/layout/nav-user"
 import { sidebarData } from "@/data/sidebar-data"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { useEffect, useRef } from "react"
-
+import { Button } from "../ui/button"
+import { Bell } from "lucide-react"
 export function AppHeader() {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,8 +54,13 @@ export function AppHeader() {
         </div>
         
         {/* Right section: Theme toggle and User */}
-        <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
-          <ThemeToggleButton />
+        <div className="flex flex-row">
+          <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
+            <ThemeToggleButton />
+            <Button variant="outline" className="hover:cursor-pointer">
+              <Bell className="w-4 h-4" />
+            </Button>
+          </div>
           <NavUser user={sidebarData.user} hideTextOnMobile={true} />
         </div>
       </div>
