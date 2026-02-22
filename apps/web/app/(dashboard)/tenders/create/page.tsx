@@ -109,6 +109,7 @@ export default function CreateTenderPage() {
                     ) : (
                         <Button 
                             type="button" 
+                            size="sm"
                             onClick={handleSubmit} 
                             className="hover:cursor-pointer"
                             disabled={loading || totalWeight !== 100}>
