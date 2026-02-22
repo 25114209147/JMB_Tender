@@ -3,6 +3,7 @@
     // Basic Information
     title: string;
     service_type: string;
+    custom_service_type?: string;
     // Property Information
     property_name: string;
     property_address_line_1: string;
@@ -13,8 +14,11 @@
     property_country: string;
     // Scope & Requirements
     scope_of_work: string;
-    contract_period_months: number;
+    contract_period_days: string;
+    contract_start_date: string;
+    contract_end_date: string;
     required_licenses: string[];
+    custom_licenses: string[]; // Array to support multiple custom licenses when "Others" is selected
     evaluation_criteria: EvaluationCriteria[];
     tender_fee: string;
     // Budget & Timeline
@@ -52,8 +56,11 @@
     property_state: "",
     property_country: "Malaysia",
     scope_of_work: "",
-    contract_period_months: 12,
+    contract_period_days: "",
+    contract_start_date: "",
+    contract_end_date: "",
     required_licenses: [],
+    custom_licenses: [],
     evaluation_criteria: [
       { criteria: "Price competitiveness", weight: 30 },
       { criteria: "Experience & track record", weight: 25 },
@@ -87,7 +94,7 @@
     property_address_line_2: "Taman Melati Utama",
     property_postcode: "53100",
     property_city: "Setapak",
-    property_state: "Wilayah Persekutuan Kuala Lumpur",
+    property_state: "W.P. Kuala Lumpur",
     property_country: "Malaysia",
     scope_of_work: `Provision of 24/7 security services for 450-unit condominium.
   
@@ -106,8 +113,11 @@
   • All equipment (walkie-talkie, torchlight, raincoat)
   • Public liability insurance min RM 1 million
   • Compliance with AKTA 2010 & BOMBA guidelines`,
-    contract_period_months: 24,
+    contract_period_days: "365",
+    contract_start_date: "2026-03-01",
+    contract_end_date: "2027-02-28",
     required_licenses: ["PSMB License", "BOMBA Certificate", "ISO 9001"],
+    custom_licenses: [],
     evaluation_criteria: [
       { criteria: "Price competitiveness", weight: 35 },
       { criteria: "Experience & past performance", weight: 25 },
@@ -130,3 +140,13 @@
     created_at: "2026-02-16",
     updated_at: "",
   };
+
+export const Required_Licenses = [
+  "PPKBM License",
+  "KKM Pest Control License",
+  "CIDB Registration",
+  "BOMBA Certificate",
+  "ISO 9001 Certification",
+  "MOF Registration",
+  "Others",
+] as const; 
