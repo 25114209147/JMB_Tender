@@ -10,15 +10,20 @@ interface Props {
 
 export default function Step2PropertyInfo({formData, updateField}: Props) {
     return (
-        <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
-            <h2 className="text-xl font-bold mb-1">Step 2: Property Information</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">Provide the property name and address.</p>
+        <div className="space-y-6">
+            <div className="mb-4">
+                <h2 className="text-2xl font-bold">Step 2: Property Information</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Provide the property name and address.
+                </p>
+            </div>
 
-            <div className="space-y-6">
-                <div>
-                    <Label htmlFor="property_name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Property Name <span className="text-red-500">*</span>
-                    </Label>
+            <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
+                <div className="space-y-6">
+                    <div>
+                        <Label htmlFor="property_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            Property Name <span className="text-red-500">*</span>
+                        </Label>
                     <Input
                         id="property_name"
                         type="text"
@@ -27,11 +32,12 @@ export default function Step2PropertyInfo({formData, updateField}: Props) {
                         className="w-full h-10"
                         required
                     />
-                </div>
-                <div>
-                    <Label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Address Line 1 <span className="text-red-500">*</span>
-                    </Label>
+                    </div>
+
+                    <div>
+                        <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            Address Line 1 <span className="text-red-500">*</span>
+                        </Label>
                     <Input
                         id="property_address_line_1"
                         type="text"
@@ -40,12 +46,12 @@ export default function Step2PropertyInfo({formData, updateField}: Props) {
                         className="w-full h-10"
                         required
                     />
-                </div>
+                    </div>
 
-                <div>
-                    <Label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Address Line 2
-                    </Label>
+                    <div>
+                        <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            Address Line 2
+                        </Label>
                     <Input
                         id="property_address_line_2"
                         type="text"
@@ -53,27 +59,27 @@ export default function Step2PropertyInfo({formData, updateField}: Props) {
                         onChange={(e) => updateField("property_address_line_2", e.target.value)}
                         className="w-full h-10"
                     />
-                </div>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                    <Label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Postcode <span className="text-red-500">*</span>
-                    </Label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                Postcode <span className="text-red-500">*</span>
+                            </Label>
                     <Input
                         id="property_postcode"
                         type="text"
                         value={formData.property_postcode}
                         onChange={(e) => updateField("property_postcode", e.target.value)}
                         className="w-full h-10"
-                        required
+                            required
                         />
-                    </div>
+                        </div>
 
-                    <div>
-                        <Label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            City <span className="text-red-500">*</span>
-                        </Label>
+                        <div>
+                            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                City <span className="text-red-500">*</span>
+                            </Label>
                         <Input
                             id="property_city"
                             type="text"
@@ -82,12 +88,13 @@ export default function Step2PropertyInfo({formData, updateField}: Props) {
                             className="w-full h-10"
                             required
                         />
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <Label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                        State <span className="text-red-500">*</span>
-                    </Label>
+
+                    <div>
+                        <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            State <span className="text-red-500">*</span>
+                        </Label>
                     <Select
                         value={formData.property_state && formData.property_state.trim() !== "" ? formData.property_state : undefined}
                         onValueChange={(value) => updateField("property_state", value)}
@@ -115,11 +122,12 @@ export default function Step2PropertyInfo({formData, updateField}: Props) {
                             <SelectItem value="Wilayah Persekutuan Kuala Lumpur">Wilayah Persekutuan Kuala Lumpur</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
-                <div>
-                    <Label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Country <span className="text-red-500">*</span>
-                    </Label>
+                    </div>
+
+                    <div>
+                        <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            Country <span className="text-red-500">*</span>
+                        </Label>
                     <Input
                         id="property_country"
                         type="text"
@@ -128,6 +136,7 @@ export default function Step2PropertyInfo({formData, updateField}: Props) {
                         className="w-full h-10"
                         disabled
                     />
+                    </div>
                 </div>
             </div>
         </div>
