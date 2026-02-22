@@ -10,7 +10,7 @@ interface Props {
 export function ScopeOfWorkSection({ formData, updateField }: Props) {
     return (
         <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
-            <h2 className="text-xl font-bold mb-1">Scope of Work</h2>
+            <h2 className="text-lg font-bold mb-1">Scope of Work</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
                 Describe the scope of work, key requirements, and any specific details.
             </p>

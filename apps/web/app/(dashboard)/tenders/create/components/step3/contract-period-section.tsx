@@ -64,7 +64,7 @@ export function ContractPeriodSection({ formData, updateField }: Props) {
 
     return (
         <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
-            <h2 className="text-xl font-bold mb-1">Contract Period</h2>
+            <h2 className="text-lg font-bold mb-1">Contract Period</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
                 Specify the duration and dates for the contract period.
             </p>
