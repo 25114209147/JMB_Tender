@@ -19,11 +19,6 @@ interface DatePickerProps {
   required?: boolean
 }
 
-/**
- * DatePicker component using Shadcn Calendar.
- * Displays a button with formatted date that opens a calendar popover.
- * Uses calendar.tsx (Shadcn Calendar component) internally.
- */
 export function DatePicker({
   value,
   onChange,
@@ -53,19 +48,25 @@ export function DatePicker({
     }
   }, [value])
 
-  // Close calendar when clicking outside
+  // Handle click outside to close calendar
   React.useEffect(() => {
+    if (!isOpen) return
+
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside)
-      }
+    // Prevent body scroll when calendar is open to avoid extra scrollbar
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    document.addEventListener("mousedown", handleClickOutside)
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [isOpen])
 
@@ -89,10 +90,13 @@ export function DatePicker({
         type="button"
         variant="outline"
         className={cn(
-          "w-full h-10 justify-start text-left font-normal",
+          "w-full h-10 justify-start text-left font-normal cursor-pointer",
           !selectedDate && "text-muted-foreground"
         )}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen((prev) => !prev)
+        }}
         disabled={disabled}
         aria-label={isOpen ? "Close calendar" : "Open calendar"}
         aria-required={required}
@@ -101,11 +105,15 @@ export function DatePicker({
         <span>{displayValue}</span>
       </Button>
       {isOpen && (
-        <div className="absolute z-50 mt-2 rounded-md border bg-popover p-3 shadow-md">
+        <div className="absolute top-full left-0 mt-1 z-50 w-[320px] rounded-md border bg-popover shadow-lg">
           <Calendar
             mode="single"
             selected={selectedDate}
             onSelect={handleDateSelect}
+            defaultMonth={selectedDate || new Date()}
+            captionLayout="dropdown"
+            fromYear={min ? new Date(min).getFullYear() : 2026}
+            toYear={max ? new Date(max).getFullYear() : new Date().getFullYear() + 10}
             disabled={(date) => {
               if (min && date < new Date(min)) return true
               if (max && date > new Date(max)) return true
