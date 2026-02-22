@@ -115,13 +115,13 @@ export default function Stepper({
             return (
               <React.Fragment key={step.id}>
                 {/* Step */}
-                <div className="flex flex-col items-center flex-shrink-0 min-w-[60px]">
+                <div className="flex flex-col items-center flex-shrink-0 min-w-[50px]">
                   <button
                     onClick={() => onStepClick?.(step.id)}
                     disabled={!onStepClick}
                     aria-current={status === "current" ? "step" : undefined}
                     className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full text-xs font-semibold transition-all duration-200",
+                      "flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold transition-all duration-200",
                       status === "completed" && "bg-primary-600 text-white",
                       status === "current" &&
                         "bg-primary-700 dark:bg-primary-600 text-white ring-2 ring-primary-200 dark:ring-primary-500/30",
@@ -133,7 +133,7 @@ export default function Stepper({
                     )}
                   >
                     {status === "completed" ? (
-                      <CircleCheck className="w-5 h-5" />
+                      <CircleCheck className="w-4 h-4" />
                     ) : (
                       step.id
                     )}
@@ -154,7 +154,7 @@ export default function Stepper({
 
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className="flex items-center flex-1 min-w-[20px] max-w-[30px] mx-1">
+                  <div className="flex items-center flex-1 min-w-[15px] max-w-[20px] mx-1">
                     <div
                       className={cn(
                         "h-0.5 w-full transition-all duration-300",
