@@ -1,13 +1,7 @@
-import { CheckCircle, CircleDollarSign, Clock3, LayoutDashboard, type LucideIcon } from "lucide-react";
+import { CheckCircle, CircleDollarSign, Clock3, LayoutDashboard } from "lucide-react";
+import { type SummaryCardData } from "@/components/layout/dashboard-summary-card";
 
-export type DashboardCardData = {
-    title: string;
-    value: number;
-    icon: LucideIcon;
-    link: string;
-}
-
-export const dashboardCardData: DashboardCardData[] = [
+export const dashboardCardData: SummaryCardData[] = [
     {
         title: "Total Tenders",
         value: 12,

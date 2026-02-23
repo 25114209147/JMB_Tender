@@ -45,13 +45,13 @@ export const sidebarData: SidebarData = {
     },
     {
       title: "All Bids",
-      url: "/owner/all-bids",
+      url: "/all-bids",
       icon: CircleDollarSign,
       items: [],
     },
     {
       title: "Analytics",
-      url: "/owner/analytics",
+      url: "/analytics",
       icon: ChartNoAxesCombined,
       items: [],
     },
