@@ -54,8 +54,8 @@ export default function TenderList({ tenders, renderCard, emptyState }: TenderLi
   }, [tenders, search, status, sort])
 
   const defaultEmptyState = (
-    <div className="rounded-lg border border-dashed p-12 text-center">
-      <p className="mb-4 text-muted-foreground">No tenders match your filters</p>
+    <div className="rounded-lg border p-12 text-center">
+      <p className="mb-4 text-muted-foreground">No tenders available at the moment.</p>
       <Link href="/tenders/create" className="cursor-pointer">
         <Button className="cursor-pointer">Create New Tender</Button>
       </Link>

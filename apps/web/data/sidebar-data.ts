@@ -39,6 +39,12 @@ export const sidebarData: SidebarData = {
     },
     {
       title: "My Tenders",
+      url: "/tenders/my-tenders",
+      icon: FileText,
+      items: [],
+    },
+    {
+      title: "All Tenders",
       url: "/tenders",
       icon: FileText,
       items: [],

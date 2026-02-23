@@ -1,12 +1,12 @@
 "use client"
 
-import { useRole } from "@/contexts/role-context"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import AllTendersList from "./components/shared/all-tenders-list"
+import AllTendersList from "../components/shared/all-tenders-list"
 import { hasPermission } from "@/lib/roles"
+import { useRole } from "@/contexts/role-context"
 
-export default function TendersPage() {
+export default function MyTendersPage() {
   const { role } = useRole()
   const canCreate = hasPermission(role, "tenders:create")
 
@@ -14,14 +14,8 @@ export default function TendersPage() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">All Tenders</h1>
-          <p className="text-muted-foreground">
-            {role === "admin" 
-              ? "View and manage all open tenders in the system"
-              : role === "contractor"
-              ? "Browse and apply for open tenders"
-              : "Browse all open tenders (you can only edit your own)"}
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">My Tenders</h1>
+          <p className="text-muted-foreground">Manage the tenders you have created</p>
         </div>
         {canCreate && (
           <Link href="/tenders/create" className="cursor-pointer">
@@ -29,7 +23,7 @@ export default function TendersPage() {
           </Link>
         )}
       </div>
-      <AllTendersList showAllStatuses={false} />
+      <AllTendersList showAllStatuses={true} ownerOnly={true} />
     </div>
   )
 }
