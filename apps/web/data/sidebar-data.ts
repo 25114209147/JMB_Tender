@@ -39,7 +39,7 @@ export const sidebarData: SidebarData = {
     },
     {
       title: "My Tenders",
-      url: "/owner/tenders",
+      url: "/tenders",
       icon: FileText,
       items: [],
     },
