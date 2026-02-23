@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, Link } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
 import Step1Basic from "./components/step1-basic-info"
 import Step2Property from "./components/step2-property-info"
 import Stepper from "@/components/ui/stepper"
@@ -66,7 +67,7 @@ export default function CreateTenderPage() {
             <div className="mb-6 flex items-center justify-between">
                 <Link  
                     href="/tenders"
-                    className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+                    className="flex items-center text-sm text-muted-foreground hover:text-foreground border border-gray-200 rounded-md px-4 py-2 bg-gray-50">
                     <ChevronLeft className="h-4 w-4 mr-1" />
                     Back to Tenders
                 </Link>

@@ -31,7 +31,7 @@ export default function Step5ReviewSubmit({ formData }: Props) {
             )}
             <div className="flex-1 min-w-0">
                 <span className="text-sm font-semibold text-foreground">{label}:</span>
-                <span className="text-sm text-muted-foreground ml-2">{value}</span>
+                <span className="text-sm text-muted-foreground ml-2 break-words inline-block w-full">{value}</span>
             </div>
         </div>
     )
@@ -80,14 +80,14 @@ export default function Step5ReviewSubmit({ formData }: Props) {
 
             <div className="space-y-4">
                 {/* Basic Information */}
-                <Card>
+                <Card className="overflow-hidden">
                     <CardHeader className="pb-2">
                         <div className="flex items-center gap-2">
                             <Info className="h-5 w-5 text-primary" />
                             <CardTitle className="text-lg">Basic Information</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-1">
+                    <CardContent className="space-y-1 overflow-hidden">
                         <InfoRow
                             label="Title"
                             value={formData.title || <span className="text-muted-foreground italic">Not provided</span>}
@@ -123,7 +123,7 @@ export default function Step5ReviewSubmit({ formData }: Props) {
                             <CardTitle className="text-lg">Property Information</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-1">
+                    <CardContent className="space-y-1 overflow-hidden">
                         <InfoRow
                             label="Property Name"
                             value={formData.property_name || <span className="text-muted-foreground italic">Not provided</span>}
@@ -131,7 +131,7 @@ export default function Step5ReviewSubmit({ formData }: Props) {
                         <Separator />
                         <div className="flex-1 min-w-0">
                             <span className="text-sm font-semibold text-foreground">Address:</span>
-                            <div className="text-sm text-muted-foreground mt-1">{formatAddress()}</div>
+                            <div className="text-sm text-muted-foreground mt-1 break-words">{formatAddress()}</div>
                         </div>
                     </CardContent>
                 </Card>
@@ -215,7 +215,7 @@ export default function Step5ReviewSubmit({ formData }: Props) {
                             <CardTitle className="text-lg">Evaluation Criteria</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-1">
+                    <CardContent className="space-y-1 overflow-hidden">
                         {formData.evaluation_criteria.length > 0 ? (
                             <div className="space-y-2">
                                 {formData.evaluation_criteria.map((c, index) => (
@@ -245,7 +245,7 @@ export default function Step5ReviewSubmit({ formData }: Props) {
                             <CardTitle className="text-lg">Budget & Timeline</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-1">
+                    <CardContent className="space-y-1 overflow-hidden">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                             <div className="p-3 rounded-lg bg-muted/50">
                                 <p className="text-xs font-medium text-muted-foreground mb-1">Minimum Budget</p>
