@@ -9,6 +9,8 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { Bell } from "lucide-react"
+import RoleSwitcher from "./role-switcher"
+
 export function AppHeader() {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,10 +55,14 @@ export function AppHeader() {
           </div>
         </div>
         
-        {/* Right section: Theme toggle and User */}
+        {/* Right section: Theme toggle, Role Switcher (dev), and User */}
         <div className="flex flex-row">
           <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
             <ThemeToggleButton />
+            {/* Role Switcher - Remove or hide in production */}
+            <div className="hidden md:block">
+              <RoleSwitcher />
+            </div>
             <Button variant="outline" className="hover:cursor-pointer">
               <Bell className="w-4 h-4" />
             </Button>
