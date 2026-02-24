@@ -6,13 +6,13 @@ export const contractorDashboardCards: SummaryCardData[] = [
     title: "Available Tenders",
     value: 24,
     icon: FileText,
-    link: "/contractor/tenders",
+    link: "/tenders",
   },
   {
     title: "My Bids",
     value: 8,
     icon: Send,
-    link: "/contractor/bids",
+    link: "/bids",
   },
   {
     title: "Won Projects",
