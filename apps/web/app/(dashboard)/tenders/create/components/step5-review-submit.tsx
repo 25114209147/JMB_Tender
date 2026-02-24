@@ -12,7 +12,7 @@ export default function Step5ReviewSubmit({ formData }: { formData: FormData }) 
                 </p>
             </div>  
 
-            <ViewTenderDetails formData={formData} updateField={() => {}} />
+            <ViewTenderDetails formData={formData} />
         </div>
     )
 }               
