@@ -61,5 +61,11 @@ export const sidebarData: SidebarData = {
       icon: ChartNoAxesCombined,
       items: [],
     },
+    {
+      title: "My Bids",
+      url: "/my-bids",
+      icon: CircleDollarSign,
+      items: [],
+    },
   ],
 } as const;
