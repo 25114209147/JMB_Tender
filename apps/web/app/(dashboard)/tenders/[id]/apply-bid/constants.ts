@@ -1,6 +1,6 @@
 import { Step } from "@/components/ui/stepper"
 
-export const BID_STEPS: Step[] = [
+export const Bid_Steps: Step[] = [
   { id: 1, title: "Company & Contact"},
   { id: 2, title: "Financial Proposal"},
   { id: 3, title: "Technical Proposal"},
