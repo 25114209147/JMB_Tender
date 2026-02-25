@@ -1,82 +1,57 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.security import get_current_user, create_access_token, verify_password, hash_password, validate_password_strength
+from core.security import get_current_user
 from database import get_db
 from models.user import User
-from schemas.user import RegisterRequest, LoginRequest, LoginResponse, UserResponse, UserProfileUpdateRequest, LoginUser  
-from sqlalchemy import select
+from schemas.user import RegisterRequest, LoginResponse, UserResponse, UserProfileUpdateRequest, UserListResponse
+from services.user_service import UserService
 
 router = APIRouter()
 
+@router.get("/", response_model=UserListResponse)
+async def get_users(page: int = 1, page_size: int = 10, db: AsyncSession = Depends(get_db)):
+    """Get paginated list of users"""
+    # Service returns raw data
+    users, total_count = await UserService.get_users_paginated(db, page, page_size)
+    
+    # Router handles API schema serialization
+    return UserListResponse(
+        users=[UserResponse.model_validate(user) for user in users],
+        total=total_count,
+        page=page,
+        page_size=page_size
+    )
+
 @router.post("/register", response_model=LoginResponse)
 async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    # Validate password strength
-    is_valid, message = validate_password_strength(data.password)
-    if not is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=message
-        )
+    """Register a new user"""
+    # Service returns raw domain objects
+    user, access_token = await UserService.register_user(db, data)
     
-    # Check if email already exists
-    result = await db.execute(select(User).where(User.email == data.email))
-    user_existed = result.scalars().first()
-    
-    if user_existed:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-    
-    # Create new user
-    user = User(
-        email=data.email,
-        hashed_password=hash_password(data.password),
-        role=data.role
-    )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-
-    # Auto-login after registration
-    access_token = create_access_token(data={"sub": str(user.id)})
-    user_data = LoginUser(
-        id=user.id,
-        email=user.email,
-        role=user.role,
-        name=user.name
-    )
+    # Router handles API schema creation
+    user_data = UserResponse.model_validate(user)
     return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
 
 
 @router.post("/login", response_model=LoginResponse)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    # Find user by email (OAuth2 form uses 'username' field for email)
-    result = await db.execute(select(User).where(User.email == form_data.username))
-    user = result.scalars().first()
-    
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    # Create access token
-    access_token = create_access_token(data={"sub": str(user.id)})
-    user_data = LoginUser(
-        id=user.id,
-        email=user.email,
-        role=user.role,
-        name=user.name
+    """Login with email and password (OAuth2 compatible)"""
+    # Service returns raw domain objects
+    user, access_token = await UserService.authenticate_user(
+        db, 
+        email=form_data.username,  # OAuth2 form uses 'username' for email
+        password=form_data.password
     )
     
+    # Router handles API schema creation
+    user_data = UserResponse.model_validate(user)
     return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
     
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_profile(current_user: User = Depends(get_current_user)):
+    """Get current authenticated user profile"""
     return current_user
 
 
@@ -86,11 +61,6 @@ async def update_user_profile(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    update_date = profile_data.model_dump(exclude_unset=True)
-    for key, value in update_date.items():
-        setattr(current_user, key, value)
-
-    await db.commit()
-    await db.refresh(current_user)
-    return current_user
+    """Update current user profile"""
+    return await UserService.update_user_profile(db, current_user, profile_data)
 

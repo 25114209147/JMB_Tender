@@ -1,6 +1,18 @@
-from pydantic import BaseModel, EmailStr, fields
-from typing import Optional
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
 
+# Base Schemas
+class UserBase(BaseModel):
+    email: EmailStr
+    role: str = "contractor"
+    name: Optional[str] = None
+    company_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    website: Optional[str] = None
+    experience_years: Optional[int] = None
+    bio: Optional[str] = None
+
+# Request models
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
@@ -10,20 +22,6 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
-class LoginUser(BaseModel):
-    id: int
-    email: EmailStr
-    role: str
-    name: Optional[str] = None
-    
-    class Config:
-        from_attributes = True
-
-class LoginResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: LoginUser
-
 class UserProfileUpdateRequest(BaseModel):
     name: Optional[str] = None
     company_name: Optional[str] = None
@@ -32,16 +30,20 @@ class UserProfileUpdateRequest(BaseModel):
     experience_years: Optional[int] = None
     bio: Optional[str] = None
 
-class UserResponse(BaseModel):
+# Response models
+class UserResponse(UserBase):
     id: int
-    email: EmailStr
-    role: str
-    name: Optional[str] = None
-    company_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    website: Optional[str] = None
-    experience_years: Optional[int] = None
-    bio: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+class UserListResponse(BaseModel):
+    users: List[UserResponse]
+    total: int
+    page: int
+    page_size: int
