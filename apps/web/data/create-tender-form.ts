@@ -1,5 +1,29 @@
-  
-  export interface FormData {
+/**
+ * Create Tender Form Data Types & Mock Data
+ * 
+ * This file contains:
+ * 1. Form data types (for form state management)
+ * 2. Mock/demo data for testing
+ * 3. Default empty values
+ * 
+ * Note: Validation logic is in create-tender-form-validation.ts
+ */
+
+// Re-export validation functions from validation module
+export {
+  validateTenderFormData,
+  canProceedToStep,
+  getStepErrors,
+  validateStep1,
+  validateStep2,
+  validateStep3,
+  validateStep4,
+  validateStep5,
+  validateEvaluationCriteriaWeights,
+} from "./create-tender-form-validation"
+export type { ValidationResult } from "./create-tender-form-validation"
+
+export interface FormData {
     // Basic Information
     title: string;
     service_type: string;

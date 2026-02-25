@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft } from "lucide-react"
-import Link from "next/link"
 import Step1Basic from "./components/step1-basic-info"
 import Step2Property from "./components/step2-property-info"
 import Stepper from "@/components/ui/stepper"
@@ -12,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import Step3ScopeRequirements from "./components/step3-scope-requirements"
 import Step4BudgetTimeline from "./components/step4-budget-timeline"
 import Step5ReviewSubmit from "./components/step5-review-submit"
+import PageHeader from "@/components/shared/page-header"
 
 export default function CreateTenderPage() {
     const [currentStep, setCurrentStep] = useState(1)
@@ -64,17 +63,12 @@ export default function CreateTenderPage() {
 
     return (
         <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-            <div className="mb-6 flex items-center justify-between">
-                <Link  
-                    href="/tenders"
-                    className="flex items-center text-sm text-muted-foreground hover:text-foreground border border-gray-200 rounded-md px-4 py-2 bg-gray-50">
-                    <ChevronLeft className="h-4 w-4 mr-1" />
-                    Back to Tenders
-                </Link>
-            </div>
-
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">Create New Tender</h1>
-            <p className="text-muted-foreground mb-6 md:mb-8">Fill in the details to create a new tender for your property</p>
+            <PageHeader
+                backHref={`/tenders`}
+                backLabel="Back to Tender"
+                title="Create New Tender"
+                description="Fill in the details to create a new tender for your property"
+            />
 
             <Stepper
                 steps={STEPS}

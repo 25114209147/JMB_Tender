@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/sidebar"
 import { sidebarData } from "@/data/sidebar-data"
 import { Building2 } from "lucide-react"
+import Link from "next/link"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props} >
       <SidebarHeader>
+        <Link href="/" className="flex items-center gap-2">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <Building2 className="h-4 w-4" />
@@ -25,6 +27,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {/* <span className="truncate text-xs text-muted-foreground">Enterprise</span> */}
           </div>
         </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={sidebarData.navMain} />
