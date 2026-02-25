@@ -135,7 +135,7 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
       <h1 className="text-2xl md:text-3xl font-bold mb-2">Tender Details</h1>
       <p className="text-muted-foreground mb-6 md:mb-8">View tender information</p>
 
-      <ViewTenderDetails formData={formData} updateField={updateField} />
+      <ViewTenderDetails formData={formData} />
     </div>
   )
 }

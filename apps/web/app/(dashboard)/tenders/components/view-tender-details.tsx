@@ -20,7 +20,6 @@ import { Separator } from "@/components/ui/separator"
 
 interface Props {
     formData: FormData
-    updateField: <K extends keyof FormData>(field: K, value: FormData[K]) => void
 }
 
 export default function ViewTenderDetails({ formData }: Props) {
