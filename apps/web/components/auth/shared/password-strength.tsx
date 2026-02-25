@@ -17,8 +17,9 @@ export function PasswordStrength({ password }: { password: string }) {
 
   return (
     <div className="mt-2 space-y-1 text-xs">
-      {requirements.map(({ key, label, check }) => {
-        const isValid = check ? check(strength) : strength[key]
+      {requirements.map((req) => {
+        const { key, label } = req
+        const isValid = 'check' in req ? req.check(strength) : strength[key]
         return (
           <div key={key} className="flex items-center gap-2">
             {isValid ? (
