@@ -15,7 +15,6 @@ class UserService:
         page_size: int = 10
     ) -> tuple[list[User], int]:
         """Get paginated list of users. Returns: (users, total_count)"""
-        # 🔥 Improvement #3: Pagination safety
         page = max(page, 1)
         page_size = min(max(page_size, 1), 100)  # Max 100 items per page
         
@@ -25,16 +24,14 @@ class UserService:
         result = await db.execute(
             select(User).offset(offset).limit(page_size)
         )
-        users = list(result.scalars().all())  # Ensure it's a list, not Sequence
+        users = list(result.scalars().all())  
         
         # Get total count
         total_count_result = await db.execute(
             select(func.count()).select_from(User)
         )
-        # 🔥 Improvement #4: Use scalar_one() for safety
         total_count = total_count_result.scalar_one()
         
-        # 🔥 Improvement #1: Return raw domain data, not Pydantic schemas
         return users, total_count
     
     @staticmethod
