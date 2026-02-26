@@ -112,7 +112,7 @@ export function formDataToBid(
     timeline: formData.proposed_timeline || undefined,
     cover_letter: formData.methodology || undefined,
     proposal_document: formData.supporting_documents[0] || undefined,
-    status: "pending",
+    status: "submitted",
     created_at: new Date().toISOString(),
     updated_at: undefined,
   }
