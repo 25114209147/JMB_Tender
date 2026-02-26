@@ -11,7 +11,7 @@ from sqlalchemy import select
 
 from core.config import settings
 from database import get_db
-from models.user import User
+from models.users import User
 
 # Initialize Argon2 password hasher with secure defaults
 ph = PasswordHasher(
@@ -120,7 +120,6 @@ def require_role(allowed_roles: Union[str, List[str]]):
     return role_checker
 
 
-# For create tenders
 def get_tender_visibility_filter(current_user: Optional[User], model):
     if not current_user or current_user.role == "contractor":
         return model.status == "open"
@@ -130,3 +129,23 @@ def get_tender_visibility_filter(current_user: Optional[User], model):
         return None
     else:
         return model.status == "open"
+
+
+def apply_bid_visibility_filter(query, count_query, current_user: Optional[User], bid_model, tender_model):
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required"
+        )
+    elif current_user.role == "contractor":
+        query = query.where(bid_model.user_id == current_user.id)
+        count_query = count_query.where(bid_model.user_id == current_user.id)
+    elif current_user.role == "owner":
+        query = query.join(tender_model).where(
+            (tender_model.created_by_id == current_user.id) | (bid_model.user_id == current_user.id)
+        )
+        count_query = count_query.join(tender_model).where(
+            (tender_model.created_by_id == current_user.id) | (bid_model.user_id == current_user.id)
+        )
+    
+    return query, count_query

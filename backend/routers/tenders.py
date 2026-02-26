@@ -4,11 +4,11 @@ from sqlalchemy import select, func
 from typing import Optional
 from datetime import datetime, date
 from database import get_db
-from core.security import get_current_user, get_current_user_optional, require_role, get_tender_visibility_filter
+from core.security import get_current_user_optional, get_tender_visibility_filter, require_role
 from core.pagination import normalize_pagination_params, paginate_query
-from models.user import User
-from models.tender import Tender
-from schemas.tender import (
+from models.users import User
+from models.tenders import Tender
+from schemas.tenders import (
     TenderResponse,
     TenderCreateRequest,
     TenderUpdateRequest,
@@ -26,7 +26,6 @@ async def get_tenders(
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get paginated list of tenders with role-based visibility"""
     page, page_size, offset = normalize_pagination_params(page, page_size)
     
     # Build query with role-based visibility
