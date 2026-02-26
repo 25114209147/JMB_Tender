@@ -42,7 +42,7 @@ export default function BidsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved":
+      case "awarded":
         return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
       case "rejected":
         return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
@@ -55,10 +55,10 @@ export default function BidsPage() {
 
   const getBidStats = () => {
     const total = mockBids.length
-    const pending = mockBids.filter((b) => b.status === "pending").length
-    const approved = mockBids.filter((b) => b.status === "approved").length
+    const submitted = mockBids.filter((b) => b.status === "submitted").length
+    const awarded = mockBids.filter((b) => b.status === "awarded").length
     const rejected = mockBids.filter((b) => b.status === "rejected").length
-    return { total, pending, approved, rejected }
+    return { total, submitted, awarded, rejected }
   }
 
   const stats = getBidStats()
@@ -89,8 +89,8 @@ export default function BidsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold">{stats.pending}</p>
+                <p className="text-sm font-medium text-muted-foreground">Submitted</p>
+                <p className="text-2xl font-bold">{stats.submitted}</p>
               </div>
             </div>
           </CardContent>
@@ -99,8 +99,8 @@ export default function BidsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Approved</p>
-                <p className="text-2xl font-bold">{stats.approved}</p>
+                <p className="text-sm font-medium text-muted-foreground">Awarded</p>
+                <p className="text-2xl font-bold">{stats.awarded}</p>
               </div>
             </div>
           </CardContent>
@@ -125,8 +125,8 @@ export default function BidsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="submitted">Submitted</SelectItem>
+            <SelectItem value="awarded">Awarded</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
             <SelectItem value="withdrawn">Withdrawn</SelectItem>
           </SelectContent>
