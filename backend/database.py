@@ -14,10 +14,10 @@ class Base(DeclarativeBase):
 
 # Database URL builder
 def get_standard_url() -> str:
-    mode = os.getenv("DB_MODE", "local").lower()
+    mode = os.getenv("DB_MODE", "sqlite").lower()
 
     if mode == "sqlite":
-        path = os.getenv("SQLITE_PATH", "./app.db")
+        path = os.getenv("SQLITE_PATH", "./my_project_database.db")
         logger.info(f"Using SQLite (async): {path}")
         return f"sqlite+aiosqlite:///{path}"
 
@@ -26,15 +26,16 @@ def get_standard_url() -> str:
     host = os.getenv("DB_HOST", "localhost")
     port = os.getenv("DB_PORT", "5432")
     db_name = os.getenv("DB_NAME", "jmb_tender")
+    print(f"DB_MODE={mode}, DB_USER={user}, DB_HOST={host}, DB_PORT={port}, DB_NAME={db_name}")
 
     if not all([user, password, db_name]):
         raise ValueError("Missing DB_USER, DB_PASSWORD or DB_NAME in .env")
 
     if mode == "supabase":
-        host = os.getenv("SUPABASE_HOST")
+        host = os.getenv("SUPABASE_URL")
         if not host:
-            raise ValueError("SUPABASE_HOST required when DB_MODE=supabase")
-        logger.info("Using Supabase (asyncpg)")
+            raise ValueError("SUPABASE_URL required when DB_MODE=supabase")
+        logger.info("Using Supabase")
 
     elif mode == "proxy":
         host = "127.0.0.1"  # Cloud SQL Auth Proxy
@@ -43,7 +44,9 @@ def get_standard_url() -> str:
     else:
         logger.info("Using local PostgreSQL")
 
-    return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db_name}"
+    url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db_name}"
+    print(url)
+    return url
 
 # Cloud SQL Connector (optional, for GCP users)
 def get_cloud_connector_engine():
