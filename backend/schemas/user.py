@@ -16,6 +16,7 @@ class UserBase(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
+    confirm_password: str
     role: str = "contractor"
 
 class LoginRequest(BaseModel):
@@ -47,3 +48,4 @@ class UserListResponse(BaseModel):
     total: int
     page: int
     page_size: int
+    total_pages: int
