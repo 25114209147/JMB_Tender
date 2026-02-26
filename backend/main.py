@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routers import users, tenders
+from routers import users, tenders, bids
 from database import create_all_tables
 
 @asynccontextmanager
@@ -38,3 +38,4 @@ def health_check():
 
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(tenders.router, prefix="/tenders", tags=["tenders"])
+app.include_router(bids.router, prefix="/bids", tags=["bids"])

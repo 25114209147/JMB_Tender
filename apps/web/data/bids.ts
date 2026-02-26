@@ -2,6 +2,7 @@ import type { Tender } from "./tenders"
 import { Users, CheckCircle, Clock, XCircle } from "lucide-react"
 import type { SummaryCardData } from "@/components/layout/dashboard-summary-card"
 
+
 // Bid Entity Type (returned from API)
 export interface Bid {
   id: string
@@ -14,7 +15,7 @@ export interface Bid {
   timeline?: string
   cover_letter?: string
   proposal_document?: string
-  status: "pending" | "approved" | "rejected" | "withdrawn"
+  status: "submitted" | "rejected" | "withdrawn" | "awarded"
   created_at: string
   updated_at?: string
 }
@@ -31,7 +32,7 @@ export const mockBids: Bid[] = [
     timeline: "Can commence within 2 weeks; full 12-month contract",
     cover_letter: "We are a PSMB-certified security company with 12 years of experience managing residential properties. Our team includes 25 trained guards with expertise in visitor management systems and CCTV monitoring. We provide comprehensive insurance coverage and comply with all AKTA 2010 and BOMBA guidelines.",
     proposal_document: "https://drive.google.com/file/d/example1/proposal.pdf",
-    status: "pending",
+    status: "submitted",
     created_at: "2026-02-20T10:30:00Z",
   },
   {
@@ -44,7 +45,7 @@ export const mockBids: Bid[] = [
     timeline: "Ready to start March 1st, 2026",
     cover_letter: "Professional security services with modern technology integration. Our guards are equipped with real-time reporting systems and we maintain a 24/7 control center.",
     proposal_document: "https://drive.google.com/file/d/example2/proposal.pdf",
-    status: "approved",
+    status: "awarded",
     created_at: "2026-02-19T14:15:00Z",
     updated_at: "2026-02-22T09:00:00Z",
   },
@@ -58,7 +59,7 @@ export const mockBids: Bid[] = [
     timeline: "Ready to commence within 10 working days; 6-month contract execution",
     cover_letter: "We are a certified cleaning service provider with 8+ years of experience in commercial high-rise buildings. Our team consists of 25 trained personnel and we use eco-friendly products. We commit to daily cleaning, weekly deep cleaning, and monthly maintenance checks. References from similar projects available upon request.",
     proposal_document: "https://drive.google.com/file/d/example3/proposal.pdf",
-    status: "pending",
+    status: "submitted",
     created_at: "2026-02-18T11:00:00Z",
   },
   {
@@ -70,7 +71,7 @@ export const mockBids: Bid[] = [
     proposed_amount: 95000,
     timeline: "Available to start April 1st, 2026",
     cover_letter: "Eco-friendly cleaning solutions with ISO 14001 certification. We specialize in high-rise office buildings and use only green-certified products. Our team includes 40 trained staff members.",
-    status: "pending",
+    status: "submitted",
     created_at: "2026-02-17T16:30:00Z",
   },
   {
@@ -83,7 +84,7 @@ export const mockBids: Bid[] = [
     timeline: "Can begin May 1st, 2026; 2-year maintenance contract",
     cover_letter: "Specialized in luxury residential landscaping with a focus on sustainable practices. Our team has maintained over 30 high-end properties across Mont Kiara and KLCC areas.",
     proposal_document: "https://drive.google.com/file/d/example5/proposal.pdf",
-    status: "pending",
+    status: "submitted",
     created_at: "2026-02-21T09:45:00Z",
   },
   {
@@ -111,13 +112,13 @@ export const allBidsCardData: SummaryCardData[] = [
   },
   {
     title: "Accepted Bids",
-    value: mockBids.filter((b) => b.status === "approved").length,
+    value: mockBids.filter((b) => b.status === "awarded").length,
     icon: CheckCircle,
-    link: "/all-bids?status=approved",
+    link: "/all-bids?status=awarded",
   },
   {
     title: "Pending Review",
-    value: mockBids.filter((b) => b.status === "pending").length,
+    value: mockBids.filter((b) => b.status === "submitted").length,
     icon: Clock,
     link: "/all-bids?status=pending",
   },
