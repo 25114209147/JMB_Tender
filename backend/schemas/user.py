@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 # Base Schemas
 class UserBase(BaseModel):
@@ -15,9 +15,9 @@ class UserBase(BaseModel):
 # Request models
 class RegisterRequest(BaseModel):
     email: EmailStr
-    password: str
-    confirm_password: str
-    role: str = "contractor"
+    password: str = "String12!"
+    confirm_password: str = "String12!"
+    role: Literal["admin", "owner", "contractor"] = "contractor"  
 
 class LoginRequest(BaseModel):
     email: EmailStr

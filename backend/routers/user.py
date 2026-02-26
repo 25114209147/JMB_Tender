@@ -56,7 +56,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
     if user_existed:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
-    allowed_roles = ["owner", "contractor"]
+    allowed_roles = ["owner", "contractor", "admin"]
     if data.role not in allowed_roles:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role")
     

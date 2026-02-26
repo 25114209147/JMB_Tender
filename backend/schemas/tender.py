@@ -1,7 +1,7 @@
 from typing import Optional, List
 import enum
 from datetime import date, time, datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class TenderStatus(str, enum.Enum):
     DRAFT = "draft"
@@ -90,8 +90,18 @@ class TenderResponse(TenderBase):
     class Config:
         from_attributes = True
 
+class TenderPublicResponse(BaseModel):
+    id: int
+    title: str
+    property_name: str
+    service_type: str
+    closing_date: date
+    TenderStatus: TenderStatus
+    model_config = ConfigDict(from_attributes=True)
+
 class TenderListResponse(BaseModel):
     tenders: List[TenderResponse]
     total: int
     page: int
     page_size: int
+    total_pages: int

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Optional, Union, List
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -22,17 +22,17 @@ ph = PasswordHasher(
     salt_len=16         # Length of random salt in bytes
 )
 
-# Correct token URL (matches your login route)
+# Standard scheme for protected routes
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
+# For public access
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
 
 def hash_password(password: str) -> str:
-    """Hash password using Argon2id"""
     return ph.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify password using Argon2id"""
     try:
         ph.verify(hashed_password, plain_password)
         return True
@@ -41,7 +41,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def validate_password_strength(password: str) -> tuple[bool, str]:
-    """Validate password meets security requirements"""
     if len(password) < 8:
         return False, "Password must be at least 8 characters"
     if not any(c.isupper() for c in password):
@@ -73,7 +72,6 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get("sub")
@@ -90,3 +88,45 @@ async def get_current_user(
         raise credentials_exception
 
     return user
+
+async def get_current_user_optional(
+    token: Annotated[Optional[str], Depends(oauth2_scheme_optional)],
+    db: Annotated[AsyncSession, Depends(get_db)]
+) -> User | None:
+    if token is None:
+        return None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+
+    result = await db.execute(select(User).where(User.id == int(user_id)))
+    user = result.scalars().first()
+    return user
+
+def require_role(allowed_roles: Union[str, List[str]]):
+    async def role_checker(current_user: User = Depends(get_current_user)):
+        roles = [allowed_roles] if isinstance(allowed_roles, str) else allowed_roles
+        
+        if current_user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Role '{current_user.role}' does not have permission to access this resource"
+            )
+        return current_user
+    return role_checker
+
+
+# For create tenders
+def get_tender_visibility_filter(current_user: Optional[User], model):
+    if not current_user or current_user.role == "contractor":
+        return model.status == "open"
+    elif current_user.role == "owner":
+        return (model.status == "open") | (model.created_by_id == current_user.id)
+    elif current_user.role == "admin":
+        return None
+    else:
+        return model.status == "open"
