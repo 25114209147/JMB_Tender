@@ -1,6 +1,10 @@
 from sqlalchemy import String, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
+from typing import TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    from models.tenders import Tender
 
 class User(Base):
     __tablename__ = "users"
@@ -17,6 +21,9 @@ class User(Base):
     website: Mapped[str | None] = mapped_column(String)
     experience_years: Mapped[int | None] = mapped_column(Integer)
     bio: Mapped[str | None] = mapped_column(String)
+    
+    # Relationships
+    tenders: Mapped[List["Tender"]] = relationship("Tender", back_populates="created_by", lazy="select", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User {self.email} ({self.role})>"

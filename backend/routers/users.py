@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from core.security import get_current_user, hash_password, validate_password_strength, verify_password, create_access_token, require_role
 from database import get_db
-from models.user import User
-from schemas.user import RegisterRequest, LoginResponse, UserResponse, UserProfileUpdateRequest, UserListResponse
+from models.users import User
+from schemas.users import RegisterRequest, LoginResponse, UserResponse, UserProfileUpdateRequest, UserListResponse
 
 router = APIRouter()
 
@@ -71,7 +71,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
         await db.commit()
         await db.refresh(user)
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
     # Create access token for auto login
