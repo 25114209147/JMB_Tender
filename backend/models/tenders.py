@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models.users import User
+    from models.bids import Bid
 
 class TenderStatus(str, enum.Enum):
     DRAFT = "draft"
@@ -46,15 +47,15 @@ class Tender(Base):
     evaluation_criteria: Mapped[list] = mapped_column(JSON, nullable=False, default=list) 
 
     #Budget and fees
-    tender_fee: Mapped[float] = mapped_column(Float, nullable=False)  # Fixed: Float not Integer
-    min_budget: Mapped[float] = mapped_column(Float, nullable=False)  # Fixed: Float not Integer
-    max_budget: Mapped[float] = mapped_column(Float, nullable=False)  # Fixed: Float not Integer
+    tender_fee: Mapped[float] = mapped_column(Float, nullable=False)  
+    min_budget: Mapped[float] = mapped_column(Float, nullable=False)  
+    max_budget: Mapped[float] = mapped_column(Float, nullable=False)  
 
     #Dates and times
-    closing_date: Mapped[date] = mapped_column(Date, nullable=False)  # Fixed: date not datetime
-    closing_time: Mapped[time] = mapped_column(Time, nullable=False)  # Fixed: time not datetime and Time column
-    site_visit_date: Mapped[date | None] = mapped_column(Date)  # Fixed: date not datetime
-    site_visit_time: Mapped[time | None] = mapped_column(Time)  # Fixed: time not datetime and Time column
+    closing_date: Mapped[date] = mapped_column(Date, nullable=False)  
+    closing_time: Mapped[time] = mapped_column(Time, nullable=False)  
+    site_visit_date: Mapped[date | None] = mapped_column(Date) 
+    site_visit_time: Mapped[time | None] = mapped_column(Time)  
 
     #Contact info
     contact_person: Mapped[str] = mapped_column(String, nullable=False)
@@ -76,6 +77,7 @@ class Tender(Base):
     
     # Relationships
     created_by: Mapped["User"] = relationship("User", back_populates="tenders", lazy="joined")
+    bids: Mapped[list["Bid"]] = relationship("Bid", back_populates="tender", lazy="joined")
 
     def __repr__(self) -> str:
         return f"<Tender {self.title} ({self.status})>" 

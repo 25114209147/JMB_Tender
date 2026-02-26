@@ -24,7 +24,7 @@ async def paginate_query(
  
     # Execute queries
     result = await db.execute(query)
-    items = list(result.scalars().all())
+    items = list(result.unique().scalars().all())
     
     total_count_result = await db.execute(count_query)
     total_count = total_count_result.scalar_one()

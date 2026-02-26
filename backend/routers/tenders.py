@@ -180,11 +180,11 @@ async def delete_tender(
     if tender.created_by_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    if tender.status != TenderStatus.DRAFT:
-        raise HTTPException(
-            status_code=400, 
-            detail="You cannot delete a tender that has been published. Please mark it as Cancelled instead."
-        )
+    # if tender.status != TenderStatus.DRAFT:
+    #     raise HTTPException(
+    #         status_code=400, 
+    #         detail="You cannot delete a tender that has been published. Please mark it as Cancelled instead."
+    #     )
     
     await db.delete(tender)
     await db.commit()

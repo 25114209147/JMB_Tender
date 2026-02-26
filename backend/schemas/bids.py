@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from enum import Enum
 from typing import Optional, List
-from pydantic_settings import ConfigDict
+from pydantic import ConfigDict
 from datetime import datetime
 
 class BidStatus(str, Enum):

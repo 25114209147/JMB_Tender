@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from models.tenders import Tender
+    from models.bids import Bid
 
 class User(Base):
     __tablename__ = "users"
@@ -24,6 +25,7 @@ class User(Base):
     
     # Relationships
     tenders: Mapped[List["Tender"]] = relationship("Tender", back_populates="created_by", lazy="select", cascade="all, delete-orphan")
+    bids: Mapped[List["Bid"]] = relationship("Bid", back_populates="user", lazy="select", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User {self.email} ({self.role})>"

@@ -52,7 +52,11 @@ class Bid(Base):
 
     # Relationships
     tender: Mapped["Tender"] = relationship("Tender", back_populates="bids", lazy="joined")
-    user: Mapped["User"] = relationship("Users", back_populates="bids", lazy="joined")
+    user: Mapped["User"] = relationship("User", back_populates="bids", lazy="joined")
+    
+    @property
+    def tender_title(self) -> str:
+        return self.tender.title if self.tender else ""
 
     def __repr__(self) -> str:
         return f"<Bid {self.id} for Tender {self.tender_id} - {self.company_name}>"

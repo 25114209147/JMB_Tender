@@ -132,13 +132,6 @@ async def create_bid(
             detail="You have already submitted a bid for this tender"
         )
     
-    # Validate proposed amount is within budget range
-    if bid_data.proposed_amount < tender.min_budget or bid_data.proposed_amount > tender.max_budget:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Proposed amount must be between {tender.min_budget} and {tender.max_budget}"
-        )
-    
     if not bid_data.agree_to_terms:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
