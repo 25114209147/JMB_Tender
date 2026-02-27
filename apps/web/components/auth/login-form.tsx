@@ -81,7 +81,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
-            <FieldGroup>
+            <FieldGroup className="gap-4">
               {apiError && (
                 <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                   {apiError}
@@ -138,7 +138,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               </div>
 
               <Field>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -151,11 +151,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               </Field>
               
 
-              <FormDivider />
+              {/* <FormDivider />
 
               <Field>
                 <GoogleButton disabled={isLoading} text="Sign in with Google" />
-              </Field>
+              </Field> */}
 
               <FieldDescription className="text-center">
                 Don't have an account?{" "}

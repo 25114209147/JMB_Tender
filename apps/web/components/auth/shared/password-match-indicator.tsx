@@ -14,11 +14,11 @@ export function PasswordMatchIndicator({
   const match = password === confirmPassword
 
   return (
-    <div className="flex items-center gap-2 mt-2">
+    <div className="flex items-center gap-2 mt-1">
       {match ? (
         <>
-          <CheckCircle2 className="h-3 w-3 text-green-600" />
-          <span className="text-xs text-green-600">Passwords match</span>
+          <CheckCircle2 className="h-3 w-3 text-green-700" />
+          <span className="text-xs text-green-700">Passwords match</span>
         </>
       ) : (
         <>

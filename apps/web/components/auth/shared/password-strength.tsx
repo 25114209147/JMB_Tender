@@ -16,18 +16,18 @@ export function PasswordStrength({ password }: { password: string }) {
   const strength = getPasswordStrength(password)
 
   return (
-    <div className="mt-2 space-y-1 text-xs">
+    <div className="mt-1 text-xs">
       {requirements.map((req) => {
         const { key, label } = req
         const isValid = 'check' in req ? req.check(strength) : strength[key]
         return (
-          <div key={key} className="flex items-center gap-2">
+          <div key={key} className="flex items-center gap-1">
             {isValid ? (
-              <CheckCircle2 className="h-3 w-3 text-green-600" />
+              <CheckCircle2 className="h-3 w-3 text-green-700" />
             ) : (
               <XCircle className="h-3 w-3 text-muted-foreground" />
             )}
-            <span className={isValid ? "text-green-600" : "text-muted-foreground"}>
+            <span className={isValid ? "text-green-700" : "text-muted-foreground"}>
               {label}
             </span>
           </div>
