@@ -35,7 +35,7 @@ export async function register(data: RegisterFormData): Promise<LoginResponse> {
       email: data.email,
       password: data.password,
       confirm_password: data.confirmPassword,
-      role: data.userType === "JMB" ? "JMB" : "contractor", 
+      role: data.userType 
     }
 
     const response = await api.post<LoginResponse>("/users/register", payload)
@@ -59,7 +59,7 @@ export async function register(data: RegisterFormData): Promise<LoginResponse> {
  */
 export async function login(data: LoginFormData): Promise<LoginResponse> {
   try {
-    // Send JSON with email, password, and remember_me
+    // Backend uses JSON LoginRequest format
     const payload = {
       email: data.email,
       password: data.password,

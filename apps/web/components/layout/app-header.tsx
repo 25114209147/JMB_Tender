@@ -68,7 +68,15 @@ export function AppHeader() {
               <Bell className="w-4 h-4" />
             </Button>
           </div>
-          {!loading && user && (
+          {/* Show NavUser when user is loaded, or show loading state */}
+          {loading ? (
+            <div className="flex items-center gap-2 px-2">
+              <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
+              <div className="hidden md:block">
+                <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+              </div>
+            </div>
+          ) : user ? (
             <NavUser 
               user={{
                 name: user.name || "User",
@@ -77,7 +85,7 @@ export function AppHeader() {
               }} 
               hideTextOnMobile={true} 
             />
-          )}
+          ) : null}
         </div>
       </div>
     </header>

@@ -36,7 +36,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={sidebarData.navMain} />
       </SidebarContent>
       <SidebarFooter className="border-t">
-        {!loading && user ? (
+        {loading ? (
+          <div className="flex items-center gap-2 px-2 py-2">
+            <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
+            <div className="hidden group-data-[collapsible=icon]:hidden">
+              <div className="h-4 w-24 bg-muted animate-pulse rounded mb-1" />
+              <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+        ) : user ? (
           <NavUser 
             user={{
               name: user.name || "User",

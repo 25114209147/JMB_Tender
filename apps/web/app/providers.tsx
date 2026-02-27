@@ -16,12 +16,12 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange      // Prevent CSS transitions during theme switch
       storageKey="jmb-tender-theme"  // Custom localStorage key
     >
-      <RoleProvider>
-        <UserProvider>
+      <UserProvider>
+        <RoleProvider>
           {children}
           <Toaster />
-        </UserProvider>
-      </RoleProvider>
+        </RoleProvider>
+      </UserProvider>
     </ThemeProvider>
   );
 }
