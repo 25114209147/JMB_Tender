@@ -22,7 +22,7 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-    remember_me: bool = False
+    remember_me: Optional[bool] = False
 
 class UserProfileUpdateRequest(BaseModel):
     name: Optional[str] = None
