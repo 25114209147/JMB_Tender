@@ -12,8 +12,11 @@ import {
 import { sidebarData } from "@/data/sidebar-data"
 import { Building2 } from "lucide-react"
 import Link from "next/link"
+import { useUser } from "@/contexts/user-context"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, loading } = useUser()
+
   return (
     <Sidebar collapsible="icon" {...props} >
       <SidebarHeader>
@@ -33,7 +36,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={sidebarData.navMain} />
       </SidebarContent>
       <SidebarFooter className="border-t">
-        <NavUser user={sidebarData.user} />
+        {!loading && user ? (
+          <NavUser 
+            user={{
+              name: user.name || "User",
+              email: user.email,
+              avatar: "/avatars/default.jpg"
+            }} 
+          />
+        ) : (
+          <NavUser user={sidebarData.user} />
+        )}
       </SidebarFooter>
       {/* <SidebarRail /> */}
     </Sidebar>

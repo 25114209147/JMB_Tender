@@ -4,15 +4,16 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Search } from "lucide-react"
 import { ThemeToggleButton } from "../ui/theme-toggle-button"
 import { NavUser } from "@/components/layout/nav-user"
-import { sidebarData } from "@/data/sidebar-data"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { Bell } from "lucide-react"
 import RoleSwitcher from "./role-switcher"
+import { useUser } from "@/contexts/user-context"
 
 export function AppHeader() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null)
+  const { user, loading } = useUser()
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,7 +68,16 @@ export function AppHeader() {
               <Bell className="w-4 h-4" />
             </Button>
           </div>
-          <NavUser user={sidebarData.user} hideTextOnMobile={true} />
+          {!loading && user && (
+            <NavUser 
+              user={{
+                name: user.name || "User",
+                email: user.email,
+                avatar: "/avatars/default.jpg"
+              }} 
+              hideTextOnMobile={true} 
+            />
+          )}
         </div>
       </div>
     </header>

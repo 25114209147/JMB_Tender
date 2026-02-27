@@ -84,7 +84,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(form_data: LoginRequest = Depends(), db: AsyncSession = Depends(get_db)):
+async def login(form_data: LoginRequest, db: AsyncSession = Depends(get_db)):
     # Find user by email
     result = await db.execute(select(User).where(User.email == form_data.email))  
     user = result.scalars().first()
@@ -95,10 +95,13 @@ async def login(form_data: LoginRequest = Depends(), db: AsyncSession = Depends(
             detail="Incorrect email or password",
         )
     
-    expires_delta = timedelta(minutes=15) if not form_data.remember_me else timedelta(days=30)
+    # Set token expiration based on remember_me
+    expires_delta = timedelta(days=30) if form_data.remember_me else timedelta(minutes=15)
     
-    access_token = create_access_token(data={"sub": str(user.id)})
-    return LoginResponse(access_token=access_token, token_type="bearer", user=user)
+    access_token = create_access_token(data={"sub": str(user.id)}, expires_delta=expires_delta)
+    
+    user_data = UserResponse.model_validate(user)
+    return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
 
 
 

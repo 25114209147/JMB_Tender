@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { RoleProvider } from '@/contexts/role-context';
+import { UserProvider } from '@/contexts/user-context';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -16,8 +17,10 @@ export function Providers({ children }: { children: ReactNode }) {
       storageKey="jmb-tender-theme"  // Custom localStorage key
     >
       <RoleProvider>
-        {children}
-        <Toaster />
+        <UserProvider>
+          {children}
+          <Toaster />
+        </UserProvider>
       </RoleProvider>
     </ThemeProvider>
   );
