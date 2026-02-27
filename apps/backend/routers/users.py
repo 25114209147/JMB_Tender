@@ -11,6 +11,36 @@ from datetime import timedelta
 router = APIRouter()
 
 
+@router.post("/token", response_model=LoginResponse, include_in_schema=True)
+async def login_for_swagger(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    OAuth2 compatible token endpoint for Swagger UI authorization.
+    Use this endpoint to authorize in Swagger UI's "Authorize" button.
+    
+    - **username**: Your email address
+    - **password**: Your password
+    """
+    # Find user by email (username field contains email)
+    result = await db.execute(select(User).where(User.email == form_data.username))
+    user = result.scalars().first()
+
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Create access token
+    access_token = create_access_token(data={"sub": str(user.id)})
+    
+    user_data = UserResponse.model_validate(user)
+    return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
+
+
 
 @router.get("/", response_model=UserListResponse)
 async def get_users(page: int = 1, page_size: int = 10, current_user: User = Depends(require_role("admin")), db: AsyncSession = Depends(get_db)):

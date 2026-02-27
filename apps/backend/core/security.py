@@ -23,10 +23,10 @@ ph = PasswordHasher(
 )
 
 # Standard scheme for protected routes
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
 # For public access
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/token", auto_error=False)
 
 def hash_password(password: str) -> str:
     return ph.hash(password)

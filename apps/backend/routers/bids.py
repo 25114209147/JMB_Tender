@@ -91,7 +91,7 @@ async def get_bid(
 @router.post("/create", response_model=BidResponse, status_code=status.HTTP_201_CREATED)
 async def create_bid(
     bid_data: BidCreateRequest,
-    current_user: User = Depends(require_role(["contractor", "JMB"])),
+    current_user: User = Depends(require_role(["contractor"])),  
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Tender).where(Tender.id == bid_data.tender_id))
@@ -261,7 +261,7 @@ async def delete_bid(
 async def get_my_bids(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(require_role(["contractor", "JMB"])),
+    current_user: User = Depends(require_role(["contractor"])),  # Only contractors have bids
     db: AsyncSession = Depends(get_db)
 ):
     page, page_size, offset = normalize_pagination_params(page, page_size)
