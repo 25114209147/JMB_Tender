@@ -81,7 +81,7 @@ async def get_tender(
 @router.post("/create", response_model=TenderResponse, status_code=status.HTTP_201_CREATED)
 async def create_tender(
     tender_data: TenderCreateRequest,
-    current_user: User = Depends(require_role(["owner", "admin"])),
+    current_user: User = Depends(require_role(["JMB", "admin"])),
     db: AsyncSession = Depends(get_db)
 ):
     if tender_data.contract_start_date >= tender_data.contract_end_date:
@@ -113,7 +113,7 @@ async def create_tender(
 async def update_tender(
     tender_id: int,
     tender_data: TenderUpdateRequest,
-    current_user: User = Depends(require_role(["owner", "admin"])),
+    current_user: User = Depends(require_role(["JMB", "admin"])),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Tender).where(Tender.id == tender_id))
@@ -162,7 +162,7 @@ async def update_tender(
 @router.delete("/{tender_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_tender(
     tender_id: int,
-    current_user: User = Depends(require_role(["owner", "admin"])),
+    current_user: User = Depends(require_role(["JMB", "admin"])),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Tender).where(Tender.id == tender_id))
@@ -176,7 +176,7 @@ async def delete_tender(
         await db.commit()
         return None
 
-    # For owners
+    # For JMBs
     if tender.created_by_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -197,7 +197,7 @@ async def delete_tender(
 async def get_my_tenders(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(require_role(["owner", "admin"])),
+    current_user: User = Depends(require_role(["JMB", "admin"])),
     db: AsyncSession = Depends(get_db)
 ):
     page, page_size, offset = normalize_pagination_params(page, page_size)

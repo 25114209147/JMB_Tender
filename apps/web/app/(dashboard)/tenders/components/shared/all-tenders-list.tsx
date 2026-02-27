@@ -14,12 +14,12 @@ import Link from "next/link"
 
 interface AllTendersListProps {
   showAllStatuses?: boolean
-  ownerOnly?: boolean // If true, only show tenders belonging to the current owner
+  JMBOnly?: boolean // If true, only show tenders belonging to the current JMB
 }
 
 export default function AllTendersList({ 
   showAllStatuses = false,
-  ownerOnly = false
+  JMBOnly = false
 }: AllTendersListProps = {}) {
   const { role } = useRole()
   
@@ -31,25 +31,25 @@ export default function AllTendersList({
     return mockBids.some(bid => bid.tender_id === tenderId)
   }
 
-  // Mock function to check if tender belongs to current owner
-  // In production, this would check: tender.owner_id === currentUser.id
-  const isOwnerTender = (tender: Tender): boolean => {
-    // Mock: For demo purposes, show all tenders as owner's tenders when ownerOnly is true
-    // In production: return tender.owner_id === currentUser.id
-    if (ownerOnly) {
-      return true // For "My Tenders", show all tenders (in production, filter by owner_id)
+  // Mock function to check if tender belongs to current JMB
+  // In production, this would check: tender.JMB_id === currentUser.id
+  const isJMBTender = (tender: Tender): boolean => {
+    // Mock: For demo purposes, show all tenders as JMB's tenders when JMBOnly is true
+    // In production: return tender.JMB_id === currentUser.id
+    if (JMBOnly) {
+      return true // For "My Tenders", show all tenders (in production, filter by JMB_id)
     }
     // For "All Tenders", use the same mock logic (IDs "1" and "2")
     return tender.id === "1" || tender.id === "2"
   }
   
-  // Filter tenders based on showAllStatuses and ownerOnly props
+  // Filter tenders based on showAllStatuses and JMBOnly props
   const filteredTenders = useMemo(() => {
     let tenders = mockTenders
     
-    // Filter by owner if ownerOnly is true
-    if (ownerOnly) {
-      // In production: tenders = mockTenders.filter(t => t.owner_id === currentUser.id)
+    // Filter by JMB if JMBOnly is true
+    if (JMBOnly) {
+      // In production: tenders = mockTenders.filter(t => t.JMB_id === currentUser.id)
       tenders = mockTenders // Mock: show all for now
     }
     
@@ -59,7 +59,7 @@ export default function AllTendersList({
     }
     
     return tenders
-  }, [showAllStatuses, ownerOnly])
+  }, [showAllStatuses, JMBOnly])
 
   const renderTenderCard = (tender: Tender) => {
     // Admin: Can view and edit all open tenders
@@ -119,13 +119,13 @@ export default function AllTendersList({
       return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} />
     }
 
-    // Owner: Different behavior for "My Tenders" vs "All Tenders"
-    if (role === "owner") {
-      const isOwnTender = isOwnerTender(tender)
+    // JMB: Different behavior for "My Tenders" vs "All Tenders"
+    if (role === "JMB") {
+      const isOwnTender = isJMBTender(tender)
       
-      // For "My Tenders" (ownerOnly=true), show edit for all tenders (all statuses)
-      // For "All Tenders" (ownerOnly=false), only show edit for own tenders
-      const canEdit = ownerOnly 
+      // For "My Tenders" (JMBOnly=true), show edit for all tenders (all statuses)
+      // For "All Tenders" (JMBOnly=false), only show edit for own tenders
+      const canEdit = JMBOnly 
         ? (tender.status === "open" || tender.status === "draft") // My Tenders: edit all own tenders
         : isOwnTender && (tender.status === "open" || tender.status === "draft") // All Tenders: edit only own
       
@@ -137,7 +137,7 @@ export default function AllTendersList({
               <span className="hidden sm:inline">Edit</span>
             </Button>
           </Link>
-          {ownerOnly && ( // Show dropdown menu only in "My Tenders"
+          {JMBOnly && ( // Show dropdown menu only in "My Tenders"
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
@@ -167,14 +167,14 @@ export default function AllTendersList({
   const emptyState = (
     <div className="rounded-lg border border-dashed p-12 text-center">
       <p className="mb-4 text-muted-foreground">
-        {ownerOnly
+        {JMBOnly
           ? "You haven't created any tenders yet"
           : showAllStatuses 
           ? "No tenders available at the moment" 
           : "No open tenders available at the moment"}
       </p>
       <p className="text-sm text-muted-foreground">
-        {ownerOnly
+        {JMBOnly
           ? "Create your first tender to get started"
           : "Check back later for new opportunities"}
       </p>

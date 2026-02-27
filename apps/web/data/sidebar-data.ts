@@ -33,7 +33,7 @@ export const sidebarData: SidebarData = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/owner/dashboard",
+      url: "/JMB/dashboard",
       icon: LayoutDashboard,
       items: [],
     },

@@ -1,7 +1,7 @@
 import { CheckCircle, CircleDollarSign, Clock3, LayoutDashboard } from "lucide-react"
 import { type SummaryCardData } from "@/components/layout/dashboard-summary-card"
 
-export const ownerDashboardCards: SummaryCardData[] = [
+export const JMBDashboardCards: SummaryCardData[] = [
   {
     title: "Total Tenders",
     value: 12,

@@ -17,7 +17,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = "String12!"
     confirm_password: str = "String12!"
-    role: Literal["admin", "owner", "contractor"] = "contractor"  
+    role: Literal["admin", "JMB", "contractor"] = "contractor"  
 
 class LoginRequest(BaseModel):
     email: EmailStr

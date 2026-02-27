@@ -55,8 +55,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       
       const response = await login(loginData)
       
-      if (response.user?.role === "owner" || response.user?.role === "owner") {
-        router.push("/owner/dashboard")
+      if (response.user.role === "JMB" || response.user.role === "JMB") {
+        router.push("/JMB/dashboard")
       } else if (response.user?.role === "contractor") {
         router.push("/contractor/dashboard")
       } else {

@@ -1,4 +1,4 @@
-export type UserType = "owner" | "contractor" | "admin"
+export type UserType = "JMB" | "contractor" | "admin"
 
 export interface LoginFormData {
   email: string
@@ -61,8 +61,8 @@ export const USER_TYPE_OPTIONS = [
     description: "Bid on tenders",
   },
   {
-    value: "jmb" as UserType,
-    label: "JMB/Owner",
+    value: "JMB" as UserType,
+    label: "JMB",
     description: "Post tenders",
   },
 ] as const

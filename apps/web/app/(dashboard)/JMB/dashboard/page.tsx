@@ -1,7 +1,7 @@
 "use client"
 
 import DashboardTemplate, { type DashboardConfig } from "@/components/dashboard/dashboard-template"
-import { ownerDashboardCards } from "@/data/dashboards/owner-dashboard"
+import { JMBDashboardCards } from "@/data/dashboards/JMB-dashboard"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Plus } from "lucide-react"
 import Link from "next/link"
@@ -11,7 +11,7 @@ export default function OwnerDashboardPage() {
   const config: DashboardConfig = {
     title: "Owner Dashboard",
     description: "Manage your tenders and track bids",
-    summaryCards: ownerDashboardCards,
+    summaryCards: JMBDashboardCards,
     primaryAction: {
       label: "Create New Tender",
       icon: <Plus className="w-4 h-4 mr-2" />,

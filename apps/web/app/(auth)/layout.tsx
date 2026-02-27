@@ -43,7 +43,7 @@ export default function AuthLayout({
           
           <div className="space-y-4 pt-8">
             <div className="rounded-lg border bg-card p-6 text-left shadow-sm">
-              <h3 className="font-semibold mb-2">For JMB & Property Owners</h3>
+              <h3 className="font-semibold mb-2">For JMB Member</h3>
               <p className="text-sm text-muted-foreground">
                 Create, publish, and manage tenders efficiently. Track bids and make informed decisions.
               </p>

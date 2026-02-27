@@ -11,7 +11,7 @@ interface RoleContextType {
 const RoleContext = createContext<RoleContextType | undefined>(undefined)
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRoleState] = useState<UserRole>("owner")
+  const [role, setRoleState] = useState<UserRole>("JMB")
 
   useEffect(() => {
     // Initialize role from storage

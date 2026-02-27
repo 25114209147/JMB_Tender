@@ -1,7 +1,7 @@
 /**
  * User roles in the system
  */
-export type UserRole = "owner" | "contractor" | "admin"
+export type UserRole = "JMB" | "contractor" | "admin"
 
 /**
  * Mock role storage - In production, this would come from authentication/session
@@ -15,19 +15,19 @@ const MOCK_ROLE_KEY = "mock_user_role"
  */
 export function getCurrentRole(): UserRole {
   if (typeof window === "undefined") {
-    // Server-side: default to owner for now
+    // Server-side: default to JMB for now
     // In production, get from session/cookies
-    return "owner"
+    return "JMB"
   }
 
   // Client-side: check localStorage for mock role
   const storedRole = localStorage.getItem(MOCK_ROLE_KEY)
-  if (storedRole && ["owner", "contractor", "admin"].includes(storedRole)) {
+  if (storedRole && ["JMB", "contractor", "admin"].includes(storedRole)) {
     return storedRole as UserRole
   }
 
   // Default role
-  return "owner"
+  return "JMB"
 }
 
 /**
@@ -46,7 +46,7 @@ export function setMockRole(role: UserRole) {
  */
 export function hasPermission(role: UserRole, action: string): boolean {
   const permissions: Record<UserRole, string[]> = {
-    owner: [
+    JMB: [
       "tenders:create",
       "tenders:edit",
       "tenders:delete",

@@ -80,7 +80,7 @@ async def get_bid(
     
     if current_user.role == "contractor" and bid.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bid not found")
-    elif current_user.role == "owner":
+    elif current_user.role == "JMB":
         if bid.tender.created_by_id != current_user.id and bid.user_id != current_user.id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bid not found")
     
@@ -91,7 +91,7 @@ async def get_bid(
 @router.post("/create", response_model=BidResponse, status_code=status.HTTP_201_CREATED)
 async def create_bid(
     bid_data: BidCreateRequest,
-    current_user: User = Depends(require_role(["contractor", "owner"])),
+    current_user: User = Depends(require_role(["contractor", "JMB"])),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Tender).where(Tender.id == bid_data.tender_id))
@@ -164,20 +164,20 @@ async def update_bid(
     if not bid:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Bid with id {bid_id} not found")
     
-    is_bid_owner = bid.user_id == current_user.id
-    is_tender_owner = bid.tender.created_by_id == current_user.id
+    is_bid_JMB = bid.user_id == current_user.id
+    is_tender_JMB = bid.tender.created_by_id == current_user.id
     is_admin = current_user.role == "admin"
     
-    if not (is_bid_owner or is_tender_owner or is_admin):
+    if not (is_bid_JMB or is_tender_JMB or is_admin):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this bid")
     
     update_data = bid_data.model_dump(exclude_unset=True)
     
     if "status" in update_data:
-        if not (is_tender_owner or is_admin):
+        if not (is_tender_JMB or is_admin):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only tender owner or admin can change bid status"
+                detail="Only tender JMB or admin can change bid status"
             )
         if bid.status == BidStatus.AWARDED and update_data["status"] != BidStatus.AWARDED and not is_admin:
             raise HTTPException(
@@ -185,10 +185,10 @@ async def update_bid(
                 detail="Cannot change status of awarded bid"
             )
     else:
-        if not (is_bid_owner or is_admin):
+        if not (is_bid_JMB or is_admin):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only bid owner can update bid content"
+                detail="Only bid JMB can update bid content"
             )
         
         if bid.status != BidStatus.SUBMITTED and not is_admin:
@@ -261,7 +261,7 @@ async def delete_bid(
 async def get_my_bids(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(require_role(["contractor", "owner"])),
+    current_user: User = Depends(require_role(["contractor", "JMB"])),
     db: AsyncSession = Depends(get_db)
 ):
     page, page_size, offset = normalize_pagination_params(page, page_size)
@@ -287,7 +287,7 @@ async def get_tender_bids(
     tender_id: int,
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(require_role(["owner", "admin"])),
+    current_user: User = Depends(require_role(["JMB", "admin"])),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Tender).where(Tender.id == tender_id))
@@ -299,7 +299,7 @@ async def get_tender_bids(
             detail=f"Tender with id {tender_id} not found"
         )
     
-    if current_user.role == "owner" and tender.created_by_id != current_user.id:
+    if current_user.role == "JMB" and tender.created_by_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view bids for this tender"

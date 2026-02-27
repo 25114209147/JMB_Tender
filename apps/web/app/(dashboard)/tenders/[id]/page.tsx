@@ -16,10 +16,10 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
   const { role } = useRole()
   const tender = mockTenders.find((t) => t.id === id)
 
-  // Mock function to check if tender belongs to current owner
-  const isOwnerTender = (tenderId: string): boolean => {
-    // Mock: For demo, tenders with IDs "1" and "2" belong to the current owner
-    // In production: return tender.owner_id === currentUser.id
+  // Mock function to check if tender belongs to current JMB
+  const isJMBTender = (tenderId: string): boolean => {
+    // Mock: For demo, tenders with IDs "1" and "2" belong to the current JMB
+    // In production: return tender.JMB_id === currentUser.id
     return tenderId === "1" || tenderId === "2"
   }
 
@@ -88,8 +88,8 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
   const canEdit = 
     role === "admin" 
       ? (tender.status === "open" || tender.status === "draft")
-      : role === "owner"
-      ? isOwnerTender(tender.id) && (tender.status === "open" || tender.status === "draft")
+      : role === "JMB"
+      ? isJMBTender(tender.id) && (tender.status === "open" || tender.status === "draft")
       : false
 
   const canApply = 

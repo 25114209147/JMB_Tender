@@ -35,7 +35,7 @@ export default function RoleSwitcher() {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="owner">Owner</SelectItem>
+          <SelectItem value="JMB">JMB</SelectItem>
           <SelectItem value="contractor">Contractor</SelectItem>
           <SelectItem value="admin">Admin</SelectItem>
         </SelectContent>

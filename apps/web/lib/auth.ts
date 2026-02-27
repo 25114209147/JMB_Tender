@@ -35,7 +35,7 @@ export async function register(data: RegisterFormData): Promise<LoginResponse> {
       email: data.email,
       password: data.password,
       confirm_password: data.confirmPassword,
-      role: data.userType === "owner" ? "owner" : "contractor", 
+      role: data.userType === "JMB" ? "JMB" : "contractor", 
     }
 
     const response = await api.post<LoginResponse>("/users/register", payload)

@@ -23,7 +23,7 @@ export default function MyTendersPage() {
           </Link>
         )}
       </div>
-      <AllTendersList showAllStatuses={true} ownerOnly={true} />
+      <AllTendersList showAllStatuses={true} JMBOnly={true} />
     </div>
   )
 }
