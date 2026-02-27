@@ -1,29 +1,37 @@
-import { CheckCircle, CircleDollarSign, Clock3, LayoutDashboard } from "lucide-react"
-import { type SummaryCardData } from "@/components/layout/dashboard-summary-card"
+import { CheckCircle, CircleDollarSign, FileText, LayoutDashboard, SquarePen } from "lucide-react"
+import { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
 
 export const JMBDashboardCards: SummaryCardData[] = [
   {
-    title: "Total Tenders",
+    title: "My Tenders",
     value: 12,
-    icon: LayoutDashboard,
-    link: "/tenders",
+    icon: FileText,
+    link: "/tenders/my-tenders",
+    iconColor: "text-blue-500",
+    iconBoxColor: "bg-blue-50",
   },
   {
     title: "Active Bids",
     value: 5,
     icon: CircleDollarSign,
-    link: "/bids",
+    link: "/all-bids",
+    iconColor: "text-teal-700",
+    iconBoxColor: "bg-teal-50",
   },
   {
-    title: "Pending Review",
+    title: "Drafts",
     value: 3,
-    icon: Clock3,
-    link: "/review",
+    icon: SquarePen,
+    link: "/JMB/drafts",
+    iconColor: "text-yellow-600",
+    iconBoxColor: "bg-yellow-50",
   },
   {
-    title: "Completed",
+    title: "Completed Tenders",
     value: 4,
     icon: CheckCircle,
-    link: "/completed",
+    link: "/JMB/completed",
+    iconColor: "text-green-600",
+    iconBoxColor: "bg-green-50",
   },
 ]

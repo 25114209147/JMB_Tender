@@ -1,5 +1,5 @@
 import { FileText, Send, Award, Clock, TrendingUp } from "lucide-react"
-import { type SummaryCardData } from "@/components/layout/dashboard-summary-card"
+import { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
 
 export const contractorDashboardCards: SummaryCardData[] = [
   {

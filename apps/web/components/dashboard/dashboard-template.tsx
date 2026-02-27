@@ -1,6 +1,6 @@
 import { type ReactNode } from "react"
 import Link from "next/link"
-import SummaryCards, { type SummaryCardData } from "@/components/layout/dashboard-summary-card"
+import SummaryCards, { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
 import { Button } from "@/components/ui/button"
 
 export interface DashboardConfig {
@@ -32,8 +32,8 @@ export default function DashboardTemplate({ config }: DashboardTemplateProps) {
       {/* Header */}
       <div className="flex flex-row gap-2 justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
-          <p className="text-muted-foreground">{description}</p>
+          <h1 className="text-2xl font-bold">{title}</h1>
+          <p className="text-muted-foreground text-sm">{description}</p>
         </div>
         
         {primaryAction && (
@@ -64,9 +64,9 @@ export default function DashboardTemplate({ config }: DashboardTemplateProps) {
 
       {/* Additional Sections */}
       {sections && sections.map((section, index) => (
-        <div key={index} className="space-y-4">
+        <div key={index} className="space-y-3">
           <div>
-            <h2 className="text-2xl font-semibold">{section.title}</h2>
+            <h2 className="text-xl font-semibold">{section.title}</h2>
             {section.description && (
               <p className="text-muted-foreground">{section.description}</p>
             )}

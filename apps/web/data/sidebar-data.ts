@@ -67,5 +67,17 @@ export const sidebarData: SidebarData = {
       icon: CircleDollarSign,
       items: [],
     },
+    {
+      title: "Draft Tenders",
+      url: "/JMB/drafts",
+      icon: CircleDollarSign,
+      items: [],
+    },
+    {
+      title: "Completed Tenders",
+      url: "/JMB/completed",
+      icon: CircleDollarSign,
+      items: [],
+    },
   ],
 } as const;
