@@ -1,5 +1,6 @@
 import { api, setAuthToken, removeAuthToken, getAuthToken, ApiClientError } from "./api"
 import type { LoginFormData, RegisterFormData } from "@/data/auth/auth-form"
+import { clearUserCache } from "@/hooks/use-current-user"
 
 export interface LoginResponse {
   access_token: string
@@ -43,6 +44,8 @@ export async function register(data: RegisterFormData): Promise<LoginResponse> {
     // Store token for auto-login
     if (response.access_token) {
       setAuthToken(response.access_token)
+      // Clear cache to force fresh user fetch
+      clearUserCache()
     }
 
     return response
@@ -76,6 +79,9 @@ export async function login(data: LoginFormData): Promise<LoginResponse> {
       if (response.user?.email) {
         localStorage.setItem("user_email", response.user.email)
       }
+      
+      // Clear cache to force fresh user fetch
+      clearUserCache()
     }
 
     return response
@@ -109,6 +115,9 @@ export async function updateProfile(
 export function logout(): void {
   removeAuthToken()
   localStorage.removeItem("user_email")
+  
+  // Clear user cache
+  clearUserCache()
   
   // Redirect to login page
   if (typeof window !== "undefined") {

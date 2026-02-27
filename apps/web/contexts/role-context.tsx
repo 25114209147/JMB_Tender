@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { UserRole, getCurrentRole } from "@/lib/roles"
+import { useUser } from "./user-context"
 
 interface RoleContextType {
   role: UserRole
@@ -12,11 +13,21 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined)
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRoleState] = useState<UserRole>("JMB")
+  const { user } = useUser()
 
   useEffect(() => {
-    // Initialize role from storage
-    setRoleState(getCurrentRole())
-  }, [])
+    // If user is logged in, use their actual role from backend
+    if (user?.role) {
+      setRoleState(user.role as UserRole)
+      // Also update localStorage for consistency
+      if (typeof window !== "undefined") {
+        localStorage.setItem("mock_user_role", user.role)
+      }
+    } else {
+      // Fallback to mock role from localStorage if not logged in
+      setRoleState(getCurrentRole())
+    }
+  }, [user])
 
   const setRole = (newRole: UserRole) => {
     setRoleState(newRole)

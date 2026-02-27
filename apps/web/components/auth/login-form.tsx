@@ -50,10 +50,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     }
 
     try {
+      // Login first (this also clears cache)
+      const response = await login(loginData)
+      
       // Refetch user data after successful login
       await refetch()
-      
-      const response = await login(loginData)
       
       if (response.user.role === "JMB" || response.user.role === "JMB") {
         router.push("/JMB/dashboard")
