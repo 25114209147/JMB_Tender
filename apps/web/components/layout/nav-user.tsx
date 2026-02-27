@@ -1,12 +1,9 @@
 "use client"
 
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
-  CreditCard,
+  CircleUserRound,
   LogOut,
-  Sparkles,
 } from "lucide-react"
 
 import {
@@ -31,6 +28,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import type { UserData } from "@/data/sidebar-data"
+import { logout } from "@/lib/auth"
 
 export function NavUser({
   user,
@@ -41,6 +39,10 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const initials = user.name.split(" ").map(n => n[0]).join("").toUpperCase()
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <SidebarMenu>
@@ -82,7 +84,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem className="px-4 py-2">
+              {/* <DropdownMenuItem className="px-4 py-2">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Upgrade to Pro
               </DropdownMenuItem>
@@ -100,10 +102,15 @@ export function NavUser({
               <DropdownMenuItem className="px-4 py-2">
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+              </DropdownMenuItem> */}
+            
             <DropdownMenuItem className="px-4 py-2">
+                <CircleUserRound className="mr-2 h-4 w-4" />
+                Profile 
+              </DropdownMenuItem>
+            </DropdownMenuGroup> 
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="px-4 py-2 cursor-pointer" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>

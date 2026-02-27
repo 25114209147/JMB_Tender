@@ -1,6 +1,6 @@
-import SummaryCards from "@/components/layout/dashboard-summary-card"
+import SummaryCards from "@/components/dashboard/dashboard-summary-card"
 import { allBidsCardData } from "@/data/bids"
-import DashboardBigCard from "@/components/layout/dashboard-big-card"
+import DashboardBigCard from "@/components/dashboard/dashboard-big-card"
 
 export default function AllBidsPage() {
   return (

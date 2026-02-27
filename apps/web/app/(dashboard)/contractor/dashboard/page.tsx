@@ -4,7 +4,7 @@ import DashboardTemplate, { type DashboardConfig } from "@/components/dashboard/
 import { contractorDashboardCards, contractorPerformanceCards } from "@/data/dashboards/contractor-dashboard"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Search } from "lucide-react"
-import SummaryCards from "@/components/layout/dashboard-summary-card"
+import SummaryCards from "@/components/dashboard/dashboard-summary-card"
 
 export default function ContractorDashboardPage() {
   const config: DashboardConfig = {

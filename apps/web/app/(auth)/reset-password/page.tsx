@@ -205,7 +205,7 @@ function ResetPasswordForm() {
                       ) : (
                         <XCircle className="h-3 w-3 text-muted-foreground" />
                       )}
-                      <span className={strength?.hasLength ? "text-green-600" : "text-muted-foreground"}>
+                      <span className={strength?.hasLength ? "text-green-700" : "text-muted-foreground"}>
                         At least 8 characters
                       </span>
                     </div>
@@ -278,8 +278,8 @@ function ResetPasswordForm() {
                   <div className="flex items-center gap-2 mt-2">
                     {passwordsMatch ? (
                       <>
-                        <CheckCircle2 className="h-3 w-3 text-green-600" />
-                        <span className="text-xs text-green-600">Passwords match</span>
+                        <CheckCircle2 className="h-3 w-3 text-green-700" />
+                        <span className="text-xs text-green-700">Passwords match</span>
                       </>
                     ) : (
                       <>

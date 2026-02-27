@@ -25,7 +25,7 @@ export default function TendersPage() {
         </div>
         {canCreate && (
           <Link href="/tenders/create" className="cursor-pointer">
-            <Button className="cursor-pointer">Create New Tender</Button>
+            <Button className="cursor-pointer">Create Tender</Button>
           </Link>
         )}
       </div>

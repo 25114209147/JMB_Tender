@@ -2,7 +2,7 @@
 
 import DashboardTemplate, { type DashboardConfig } from "@/components/dashboard/dashboard-template"
 import { adminDashboardCards, adminAlertCards } from "@/data/dashboards/admin-dashboard"
-import SummaryCards from "@/components/layout/dashboard-summary-card"
+import SummaryCards from "@/components/dashboard/dashboard-summary-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Settings } from "lucide-react"
 

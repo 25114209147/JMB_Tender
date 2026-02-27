@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-      "dev": "source myvenv/bin/activate && uvicorn main:app --reload",
+      "dev": "source myvenv/bin/activate && uvicorn main:app --reload --port 8002",
       "start": "uvicorn main:app --host 0.0.0.0",
       "lint": "ruff check .",
       "type-check": "mypy ."
