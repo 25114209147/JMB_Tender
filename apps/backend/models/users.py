@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer
+from sqlalchemy import String, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 from typing import TYPE_CHECKING, List
@@ -13,6 +13,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    remember_me: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     role: Mapped[str] = mapped_column(String, nullable=False, default="contractor")
 
     # Optional one: Update profile fields

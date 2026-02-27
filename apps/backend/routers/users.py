@@ -5,7 +5,8 @@ from sqlalchemy import select, func
 from core.security import get_current_user, hash_password, validate_password_strength, verify_password, create_access_token, require_role
 from database import get_db
 from models.users import User
-from schemas.users import RegisterRequest, LoginResponse, UserResponse, UserProfileUpdateRequest, UserListResponse
+from schemas.users import RegisterRequest, LoginResponse, UserResponse, UserProfileUpdateRequest, UserListResponse, LoginRequest
+from datetime import timedelta
 
 router = APIRouter()
 
@@ -83,21 +84,21 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login(form_data: LoginRequest = Depends(), db: AsyncSession = Depends(get_db)):
     # Find user by email
-    result = await db.execute(select(User).where(User.email == form_data.username))  # OAuth2 uses 'username' for email
+    result = await db.execute(select(User).where(User.email == form_data.email))  
     user = result.scalars().first()
-    
+
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
         )
     
+    expires_delta = timedelta(minutes=15) if not form_data.remember_me else timedelta(days=30)
+    
     access_token = create_access_token(data={"sub": str(user.id)})
-    user_data = UserResponse.model_validate(user)
-    return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
+    return LoginResponse(access_token=access_token, token_type="bearer", user=user)
 
 
 
