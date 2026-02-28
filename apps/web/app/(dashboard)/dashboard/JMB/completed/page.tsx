@@ -1,6 +1,6 @@
 "use client"
 
-import TenderListPage from "../../tenders/components/shared/tender-list-page"
+import TenderListPage from "../../../tenders/components/shared/tender-list-page"
 import type { Tender } from "@/data/tenders/tender-types"
 
 export default function CompletedPage() {

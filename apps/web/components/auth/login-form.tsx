@@ -57,11 +57,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       await refetch()
       
       if (response.user.role === "JMB" || response.user.role === "JMB") {
-        router.push("/JMB/dashboard")
+        router.push("/dashboard/JMB")
       } else if (response.user?.role === "contractor") {
-        router.push("/contractor/dashboard")
+        router.push("/dashboard/contractor")
       } else {
-        router.push("/admin/dashboard")
+        router.push("/dashboard/admin")
       }
     } catch (error) {
       if (error instanceof ApiClientError) {

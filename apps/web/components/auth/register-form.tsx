@@ -57,14 +57,14 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       return
     }
 
-    try {
+    try { 
       const response = await register(registerData)
       if (response.user?.role === "JMB"){
-        router.push("/JMB/dashboard")
+        router.push("/dashboard/JMB")
       } else if (response.user?.role === "contractor") {
-        router.push("/contractor/dashboard")
+        router.push("/dashboard/contractor")
       } else {
-        router.push("/admin/dashboard")
+        router.push("/dashboard/admin")
       }
     } catch (error) {
       if (error instanceof ApiClientError) {
