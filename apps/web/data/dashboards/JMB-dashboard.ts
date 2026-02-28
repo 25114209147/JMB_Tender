@@ -1,5 +1,15 @@
+/**
+ * @deprecated This file is no longer used.
+ * Dashboard cards are now generated dynamically from real API data.
+ * See: apps/web/app/(dashboard)/JMB/dashboard/page.tsx
+ * Uses: useDashboardStats hook for real-time data
+ * 
+ * This file can be safely removed.
+ */
+
 import { CheckCircle, CircleDollarSign, FileText, LayoutDashboard, SquarePen } from "lucide-react"
 import { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
+
 
 export const JMBDashboardCards: SummaryCardData[] = [
   {
