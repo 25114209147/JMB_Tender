@@ -123,14 +123,27 @@ async function handleResponse<T>(response: Response): Promise<T> {
       
       // Handle FastAPI validation errors (array format)
       if (Array.isArray(errorData.detail)) {
-        // Extract first error message from validation errors
-        errorMessage = errorData.detail[0]?.msg || errorMessage
-      } else {
+        // Extract all error messages and join them, or use the first one
+        const messages = errorData.detail
+          .map((err) => {
+            // Format: "field_name: error message" or just "error message"
+            const field = err.loc && err.loc.length > 1 ? err.loc[err.loc.length - 1] : null
+            return field ? `${field}: ${err.msg}` : err.msg
+          })
+          .filter(Boolean)
+        
+        errorMessage = messages.length > 0 
+          ? messages.join(". ") 
+          : errorMessage
+      } else if (typeof errorData.detail === "string") {
         // Handle simple string errors
-        errorMessage = errorData.detail || errorData.message || errorMessage
+        errorMessage = errorData.detail
+      } else if (errorData.message) {
+        errorMessage = errorData.message
       }
     } catch {
-      errorMessage = response.statusText
+      // If JSON parsing fails, use status text
+      errorMessage = response.statusText || `HTTP ${response.status}`
     }
 
     // Auto logout on 401
