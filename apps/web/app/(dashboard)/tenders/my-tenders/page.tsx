@@ -1,6 +1,6 @@
 "use client"
 
-import TenderListPage from "../components/shared/tender-list-page"
+import TenderListPage from "../components/tender-list-page"
 
 export default function MyTendersPage() {
   return (

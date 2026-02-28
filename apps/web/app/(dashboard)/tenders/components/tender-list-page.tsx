@@ -172,6 +172,7 @@ export default function TenderListPage({
         tenders={tenders}
         showAllStatuses={showAllStatuses}
         JMBOnly={JMBOnly}
+        onTenderDeleted={refetch}
       />
     </div>
   )

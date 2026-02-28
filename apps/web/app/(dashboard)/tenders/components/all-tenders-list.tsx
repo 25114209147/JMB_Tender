@@ -1,8 +1,11 @@
+// take a raw list of tenders 
+// decide exactly what buttons (Edit, Apply, View) a user should see based on their role
+
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import TenderList from "./tender-list"
-import TenderCard from "./tender-card"
+import { TenderCard } from "./tender-card"
 import type { Tender } from "@/data/tenders/tender-types"
 import { useRole } from "@/contexts/role-context"
 import { useCurrentUser } from "@/hooks/use-current-user"
@@ -11,47 +14,52 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Edit, MoreVertical, Trash2, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
+import { deleteTender } from "@/lib/tenders"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { toast } from "sonner"
 
 interface AllTendersListProps {
   tenders: Tender[]
   showAllStatuses?: boolean
-  JMBOnly?: boolean // If true, only show tenders belonging to the current JMB
+  JMBOnly?: boolean
+  onTenderDeleted?: () => void // Callback to refresh the list after deletion
 }
 
 export default function AllTendersList({ 
   tenders: tendersProp,
   showAllStatuses = false,
-  JMBOnly = false
+  JMBOnly = false,
+  onTenderDeleted
 }: AllTendersListProps) {
   const { role } = useRole()
   const { user } = useCurrentUser()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [tenderToDelete, setTenderToDelete] = useState<number | null>(null)
   
-  // ✅ Use real hook to get contractor's bids (ONLY if contractor role)
-  // Don't call hook for other roles to avoid unnecessary API calls
+  // Use real hook to get contractor's bids (ONLY if contractor role)
   const bidsQuery = useMyBids(1, 100)
   const bids = role === "contractor" ? bidsQuery.bids : []
   
-  // ✅ Check if current contractor has applied to a tender (using real data)
+  // Check if current contractor has applied to a tender (using real data)
   // Only contractors can apply, so return false for all other roles
   const hasContractorApplied = (tenderId: number): boolean => {
     if (role !== "contractor") return false
     return bids.some(bid => bid.tender_id === tenderId)
   }
 
-  // ✅ Check if tender belongs to current user (using real data)
   const isJMBTender = (tender: Tender): boolean => {
     if (!user) return false
     return tender.created_by_id === user.id
   }
   
-  // ✅ Filter tenders based on showAllStatuses and JMBOnly props (using real data)
+  // Filter tenders based on showAllStatuses and JMBOnly props 
   const filteredTenders = useMemo(() => {
     // Handle case where tendersProp might be undefined/null
     if (!tendersProp || !Array.isArray(tendersProp)) {
       return []
     }
     
-    let filtered = [...tendersProp] // Use prop data, not mock data
+    let filtered = [...tendersProp] 
     
     // Filter by JMB if JMBOnly is true (only show user's own tenders)
     if (JMBOnly && user) {
@@ -64,7 +72,40 @@ export default function AllTendersList({
     }
     
     return filtered
-  }, [tendersProp, showAllStatuses, JMBOnly, user])
+  }, [tendersProp, JMBOnly, user, showAllStatuses])
+
+  const openDeleteDialog = (tenderId: number) => {
+    setTenderToDelete(tenderId)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteTender = async () => {
+    if (!tenderToDelete) return
+
+    try {
+      await deleteTender(tenderToDelete)
+      toast.success("Tender deleted successfully")
+      setDeleteDialogOpen(false)
+      setTenderToDelete(null)
+      // Refresh the list after successful deletion
+      if (onTenderDeleted) {
+        await onTenderDeleted()
+      }
+    } catch (error) {
+      // Show detailed error from API
+      let errorMessage = "Failed to delete tender. Please try again."
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      toast.error(errorMessage)
+      console.error("Delete error:", error)
+      
+      // Don't close dialog on error so user can retry
+      // setDeleteDialogOpen(false) - commented out intentionally
+    }
+  }
 
   const renderTenderCard = (tender: Tender) => {
     // Admin: Can view and edit all open tenders
@@ -85,9 +126,12 @@ export default function AllTendersList({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem className="cursor-pointer">Duplicate</DropdownMenuItem>
-              <DropdownMenuItem disabled>Export PDF</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+              {/* <DropdownMenuItem className="cursor-pointer">Duplicate</DropdownMenuItem>
+              <DropdownMenuItem disabled>Export PDF</DropdownMenuItem> */}
+              <DropdownMenuItem 
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                onSelect={() => openDeleteDialog(tender.id as number)}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
@@ -96,11 +140,10 @@ export default function AllTendersList({
         </>
       ) : null
 
-      return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} actions={actions} />
+      return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} actions={actions} collapsible={true} />
     }
 
     // Contractor: Can view or apply (if not yet applied)
-    // ONLY contractors can apply - JMB cannot apply
     if (role === "contractor") {
       if (tender.status === "open") {
         const hasApplied = hasContractorApplied(tender.id as number)
@@ -119,19 +162,17 @@ export default function AllTendersList({
           </Link>
         )
 
-        return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} actions={actions} />
+        return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} actions={actions} collapsible={true} />
       }
       // For non-open tenders, contractor can only view
-      return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} />
+      return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} collapsible={true} />
     }
 
-    // JMB: Can only view and edit their own tenders - CANNOT apply
-    // JMB should never see "Apply" button - only edit/view actions
+    // JMB: Can only view and edit their own tenders 
     if (role === "JMB") {
       const isOwnTender = isJMBTender(tender)
       
-      // Show edit button for own tenders in both views
-      // Allow editing for draft, open, and closed statuses
+      // Show edit button for draft, open, and closed statuses
       const editableStatuses: string[] = ["draft", "open", "closed"]
       const canEdit = isOwnTender && editableStatuses.includes(tender.status)
       
@@ -151,9 +192,11 @@ export default function AllTendersList({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem className="cursor-pointer">Duplicate</DropdownMenuItem>
-                <DropdownMenuItem disabled>Export PDF</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                {/* <DropdownMenuItem className="cursor-pointer">Duplicate</DropdownMenuItem> */}
+                <DropdownMenuItem 
+                  className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                  onSelect={() => openDeleteDialog(tender.id as number)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
@@ -163,12 +206,11 @@ export default function AllTendersList({
         </>
       ) : null
 
-      return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} actions={actions} />
+      return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} actions={actions} collapsible={true} />
     }
 
     // Fallback: Just view (no actions for unknown roles)
-    // This ensures JMB or any other role that doesn't match above cases can only view
-    return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} />
+    return <TenderCard tender={tender} viewHref={`/tenders/${tender.id}`} collapsible={true} />
   }
 
   const emptyState = (
@@ -188,5 +230,20 @@ export default function AllTendersList({
     </div>
   )
 
-  return <TenderList tenders={filteredTenders} renderCard={renderTenderCard} emptyState={emptyState} />
+  return (
+    <>
+      <TenderList tenders={filteredTenders} renderCard={renderTenderCard} emptyState={emptyState} />
+      
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteTender}
+        title="Delete Tender"
+        description="Are you sure you want to delete this tender? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+      />
+    </>
+  )
 }

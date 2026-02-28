@@ -20,6 +20,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import type { NavItem } from "@/data/sidebar-data"
+import { cn } from "@/lib/utils"
 
 export function NavMain({
   items,
@@ -41,7 +42,14 @@ export function NavMain({
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title} isActive={isActive} className="pl-4">
                   <Link href={item.url} className="cursor-pointer ">
-                    {item.icon && <item.icon className="text-primary" />}
+                    {item.icon && (
+                      <item.icon 
+                        className={cn(
+                          "h-5 w-5 shrink-0",
+                          item.iconColor || "text-muted-foreground" 
+                        )} 
+                      />
+                    )}
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -59,7 +67,14 @@ export function NavMain({
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton tooltip={item.title} isActive={isActive} className="cursor-pointer">
-                    {item.icon && <item.icon className="text-primary" />}
+                    {item.icon && (
+                      <item.icon 
+                        className={cn(
+                          "h-5 w-5 shrink-0",
+                          item.iconColor || "text-muted-foreground" 
+                        )} 
+                      />
+                    )}
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>

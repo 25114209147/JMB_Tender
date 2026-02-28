@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, CircleDollarSign, Users, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, FileText, CircleDollarSign, List, Users, type LucideIcon } from "lucide-react";
 import type { UserRole } from "@/lib/roles";
 
 export type NavSubItem = {
@@ -12,6 +12,7 @@ export type NavItem = {
   readonly icon?: LucideIcon;
   readonly isActive?: boolean;
   readonly items?: readonly NavSubItem[];
+  readonly iconColor?: string; 
 }
 
 export type UserData = {
@@ -32,31 +33,35 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
         title: "Dashboard",
         url: "/dashboard/JMB",
         icon: LayoutDashboard,
+        iconColor: "text-primary",
       },
       {
         title: "All Tenders",
         url: "/tenders",
         icon: FileText,
+        iconColor: "text-purple-800",
       },
       {
         title: "My Tenders",
         url: "/tenders/my-tenders",
-        icon: FileText,
+        icon: List,
+        iconColor: "text-blue-700",
       },
-      {
-        title: "Draft Tenders",
-        url: "/dashboard/JMB/drafts",
-        icon: FileText,
-      },
-      {
-        title: "Completed Tenders",
-        url: "/dashboard/JMB/completed",
-        icon: FileText,
-      },
+      // {
+      //   title: "Draft Tenders",
+      //   url: "/dashboard/JMB/drafts",
+      //   icon: FileText,
+      // },
+      // {
+      //   title: "Completed Tenders",
+      //   url: "/dashboard/JMB/completed",
+      //   icon: FileText,
+      // },
       {
         title: "All Bids",
         url: "/all-bids",
         icon: CircleDollarSign,
+        iconColor: "text-teal-800",
       },
     ],
     contractor: [
