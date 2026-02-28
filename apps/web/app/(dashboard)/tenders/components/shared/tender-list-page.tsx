@@ -1,8 +1,5 @@
 /**
- * TenderListPage Component
- * 
  * Reusable component for displaying tender lists with different filters
- * Standardizes loading, error, empty states, and layout across all tender pages
  * 
  * Usage:
  * ```tsx
@@ -24,14 +21,12 @@
 
 "use client"
 
-import { useMemo } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Plus, FileText } from "lucide-react"
 import { useRole } from "@/contexts/role-context"
 import { hasPermission } from "@/lib/roles"
-import { useTenders } from "@/hooks/use-tenders"
-import { useMyTenders } from "@/hooks/use-my-tenders"
+import { useTenderList } from "@/hooks/use-tender-list"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -74,20 +69,12 @@ export default function TenderListPage({
   const { role } = useRole()
   const canCreate = hasPermission(role, "tenders:create")
 
-  // Use appropriate hook based on prop
-  const tendersQuery = useMyTendersHook
-    ? useMyTenders(filters?.page || 1, filters?.page_size || 10)
-    : useTenders(filters)
-
-  const { tenders: rawTenders, loading, error, total, refetch } = tendersQuery
-
-  // Apply client-side filter if provided
-  const tenders = useMemo(() => {
-    if (clientSideFilter) {
-      return rawTenders.filter(clientSideFilter)
-    }
-    return rawTenders
-  }, [rawTenders, clientSideFilter])
+  // Use wrapper hook that handles data fetching and filtering
+  const { tenders, loading, error, total, refetch } = useTenderList({
+    filters,
+    useMyTendersHook,
+    clientSideFilter,
+  })
 
   // Handle loading state
   if (loading) {
@@ -113,7 +100,7 @@ export default function TenderListPage({
       icon: emptyStateConfig?.icon || FileText,
       action: showCreateButton && canCreate ? (
         <Link href="/tenders/create">
-          <Button>
+          <Button className="cursor-pointer">
             <Plus className="mr-2 h-4 w-4" />
             Create Tender
           </Button>

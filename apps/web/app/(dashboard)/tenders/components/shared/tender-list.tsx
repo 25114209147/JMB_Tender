@@ -42,7 +42,7 @@ export default function TenderList({ tenders, renderCard, emptyState }: TenderLi
         return new Date(a.closing_date).getTime() - new Date(b.closing_date).getTime()
       }
       if (sort === "bids") {
-        return b.total_bids - a.total_bids
+        return (b?.total_bids || 0) - (a?.total_bids || 0)
       }
       if (sort === "created") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()

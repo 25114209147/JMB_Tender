@@ -1,10 +1,7 @@
 /**
- * useTenderList Hook
- * 
  * Wrapper hook that combines data fetching logic for tender list pages
  * Handles both useTenders and useMyTenders hooks
  * Applies client-side filtering if needed
- * 
  * This reduces redundancy in TenderListPage component
  */
 
