@@ -43,7 +43,7 @@ export async function register(data: RegisterFormData): Promise<LoginResponse> {
     
     // Store token for auto-login
     if (response.access_token) {
-      setAuthToken(response.access_token)
+      setAuthToken(response.access_token, 1800) // 30 minutes
       // Clear cache to force fresh user fetch
       clearUserCache()
     }
@@ -73,7 +73,7 @@ export async function login(data: LoginFormData): Promise<LoginResponse> {
     
     // Store token
     if (response.access_token) {
-      setAuthToken(response.access_token)
+      setAuthToken(response.access_token, 1800) // 30 minutes
       
       // Store user email for display
       if (response.user?.email) {

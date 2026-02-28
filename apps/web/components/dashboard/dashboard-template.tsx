@@ -1,7 +1,6 @@
 import { type ReactNode } from "react"
-import Link from "next/link"
 import SummaryCards, { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
-import { Button } from "@/components/ui/button"
+import DashboardHeader from "@/components/dashboard/dashboard-header"
 
 export interface DashboardConfig {
   title: string
@@ -30,35 +29,13 @@ export default function DashboardTemplate({ config }: DashboardTemplateProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-row gap-2 justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">{title}</h1>
-          <p className="text-muted-foreground text-sm">{description}</p>
-        </div>
-        
-        {primaryAction && (
-          <div>
-            {primaryAction.href ? (
-              <Link href={primaryAction.href}>
-                <Button variant="default" className="hover:cursor-pointer">
-                  {primaryAction.icon}
-                  {primaryAction.label}
-                </Button>
-              </Link>
-            ) : (
-              <Button 
-                variant="default" 
-                className="hover:cursor-pointer"
-                onClick={primaryAction.onClick}
-              >
-                {primaryAction.icon}
-                {primaryAction.label}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+      <DashboardHeader
+        title={title}
+        description={description}
+        primaryAction={primaryAction}
+      />
 
+      
       {/* Summary Cards */}
       <SummaryCards data={summaryCards} />
 

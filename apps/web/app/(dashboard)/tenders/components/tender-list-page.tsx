@@ -21,9 +21,9 @@
 
 "use client"
 
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Plus, FileText } from "lucide-react"
+import DashboardHeader from "@/components/dashboard/dashboard-header"
 import { useRole } from "@/contexts/role-context"
 import { hasPermission } from "@/lib/roles"
 import { useTenderList } from "@/hooks/use-tender-list"
@@ -110,20 +110,17 @@ export default function TenderListPage({
 
     return (
       <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-            {description && <p className="text-muted-foreground mt-2">{description}</p>}
-          </div>
-          {showCreateButton && canCreate && (
-            <Link href="/tenders/create" className="cursor-pointer">
-              <Button className="cursor-pointer">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Tender
-              </Button>
-            </Link>
-          )}
-        </div>
+        <DashboardHeader
+          title={title}
+          description={description || "Get started by creating your first tender"}
+          primaryAction={
+            showCreateButton && canCreate ? {
+              label: "Create Tender",
+              icon: <Plus className="mr-2 h-4 w-4" />,
+              href: "/tenders/create",
+            } : undefined
+          }
+        />
 
         <EmptyState
           icon={defaultEmptyState.icon}
@@ -138,31 +135,25 @@ export default function TenderListPage({
   // Render success state with data
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-          <p className="text-muted-foreground mt-2">
-            {description || (
-              <>
-                {total} {total === 1 ? "tender" : "tenders"}
-                {filters?.status && ` (${filters.status})`}
-              </>
-            )}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {headerActions}
-          {showCreateButton && canCreate && (
-            <Link href="/tenders/create" className="cursor-pointer">
-              <Button className="cursor-pointer">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Tender
-              </Button>
-            </Link>
-          )}
-        </div>
-      </div>
+      {/* Use DashboardHeader component */}
+      <DashboardHeader
+        title={title}
+        description={
+          description || (
+            <>
+              {total} {total === 1 ? "tender" : "tenders"}
+              {filters?.status && ` (${filters.status})`}
+            </>
+          )
+        }
+        primaryAction={
+          showCreateButton && canCreate ? {
+            label: "Create Tender",
+            icon: <Plus className="mr-2 h-4 w-4" />,
+            href: "/tenders/create",
+          } : undefined
+        }
+      />
 
       {/* Info Banner */}
       {infoBanner && <div>{infoBanner}</div>}

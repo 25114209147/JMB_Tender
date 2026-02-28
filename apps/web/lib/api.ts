@@ -28,17 +28,40 @@ export class ApiClientError extends Error {
 
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null
-  return localStorage.getItem("access_token")
+  const token = localStorage.getItem("access_token")
+  
+  // Check if token is about to expire (within 1 minute)
+  if (token) {
+    const expiryTime = localStorage.getItem("token_expiry")
+    if (expiryTime) {
+      const expiryMs = parseInt(expiryTime, 10)
+      const now = Date.now()
+      const timeUntilExpiry = expiryMs - now
+      
+      // If token expires in less than 1 minute, treat as expired
+      if (timeUntilExpiry < 60000) {
+        removeAuthToken()
+        return null
+      }
+    }
+  }
+  
+  return token
 }
 
-export function setAuthToken(token: string): void {
+export function setAuthToken(token: string, expiresIn?: number): void {
   if (typeof window === "undefined") return
   localStorage.setItem("access_token", token)
+  
+  // Default to 30 minutes if not specified
+  const expirationTime = Date.now() + ((expiresIn || 1800) * 1000)
+  localStorage.setItem("token_expiry", expirationTime.toString())
 }
 
 export function removeAuthToken(): void {
   if (typeof window === "undefined") return
   localStorage.removeItem("access_token")
+  localStorage.removeItem("token_expiry")
 }
 
 /* =========================================================
@@ -115,11 +138,18 @@ async function apiFetch<T>(
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
+  // Handle 204 No Content (common for DELETE requests)
+  if (response.status === 204) {
+    return null as T
+  }
+
   if (!response.ok) {
     let errorMessage = `HTTP ${response.status}`
 
     try {
-      const errorData: ApiErrorResponse = await response.json()
+      // Clone response to read body without consuming the original
+      const clonedResponse = response.clone()
+      const errorData: ApiErrorResponse = await clonedResponse.json()
       
       // Handle FastAPI validation errors (array format)
       if (Array.isArray(errorData.detail)) {
@@ -157,11 +187,25 @@ async function handleResponse<T>(response: Response): Promise<T> {
     throw new ApiClientError(response.status, errorMessage)
   }
 
-  if (response.status === 204) {
+  // For successful responses, check content-type before parsing
+  const contentType = response.headers.get("content-type")
+  
+  // If no content-type or not JSON, return null (empty response)
+  if (!contentType || !contentType.includes("application/json")) {
     return null as T
   }
 
-  return response.json()
+  // Try to parse JSON, but handle empty responses gracefully
+  try {
+    const text = await response.text()
+    if (!text || text.trim() === "") {
+      return null as T
+    }
+    return JSON.parse(text) as T
+  } catch {
+    // If JSON parsing fails and status is successful, assume empty response
+    return null as T
+  }
 }
 
 /* =========================================================

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRole } from "@/contexts/role-context"
-import TenderListPage from "./components/shared/tender-list-page"
+import TenderListPage from "./components/tender-list-page"
 
 export default function TendersPage() {
   const { role } = useRole()
