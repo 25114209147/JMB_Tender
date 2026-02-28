@@ -30,7 +30,7 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
     JMB: [
       {
         title: "Dashboard",
-        url: "/JMB/dashboard",
+        url: "/dashboard/JMB",
         icon: LayoutDashboard,
       },
       {
@@ -45,12 +45,12 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
       },
       {
         title: "Draft Tenders",
-        url: "/JMB/drafts",
+        url: "/dashboard/JMB/drafts",
         icon: FileText,
       },
       {
         title: "Completed Tenders",
-        url: "/JMB/completed",
+        url: "/dashboard/JMB/completed",
         icon: FileText,
       },
       {

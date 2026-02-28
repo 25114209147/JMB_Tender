@@ -7,9 +7,7 @@ import type {
   TenderFilters,
 } from "@/data/tenders/tender-types"
 
-/**
- * Get list of tenders with optional filters
- */
+// Get list of tenders with optional filters
 export async function getTenders(
   filters?: TenderFilters
 ): Promise<TenderListResponse> {
@@ -29,9 +27,7 @@ export async function getTenders(
   }
 }
 
-/**
- * Get a single tender by ID
- */
+ //Get a single tender by ID
 export async function getTender(tenderId: number): Promise<Tender> {
   try {
     return await api.get<Tender>(`/tenders/${tenderId}`)
@@ -43,9 +39,7 @@ export async function getTender(tenderId: number): Promise<Tender> {
   }
 }
 
-/**
- * Create a new tender
- */
+//Create a new tender
 export async function createTender(
   data: TenderCreateRequest
 ): Promise<Tender> {
@@ -59,9 +53,7 @@ export async function createTender(
   }
 }
 
-/**
- * Update an existing tender
- */
+//Update an existing tender
 export async function updateTender(
   tenderId: number,
   data: TenderUpdateRequest
@@ -76,9 +68,7 @@ export async function updateTender(
   }
 }
 
-/**
- * Delete a tender
- */
+//Delete a tender
 export async function deleteTender(tenderId: number): Promise<void> {
   try {
     await api.delete<void>(`/tenders/${tenderId}`)
@@ -90,9 +80,7 @@ export async function deleteTender(tenderId: number): Promise<void> {
   }
 }
 
-/**
- * Get current user's tenders (Owner only)
- */
+//Get current user's tenders (Owner only)
 export async function getMyTenders(
   page: number = 1,
   pageSize: number = 10
@@ -112,23 +100,17 @@ export async function getMyTenders(
   }
 }
 
-/**
- * Publish a draft tender (change status to 'open')
- */
+//Publish a draft tender (change status to 'open')
 export async function publishTender(tenderId: number): Promise<Tender> {
   return updateTender(tenderId, { status: "open" })
 }
 
-/**
- * Close a tender (change status to 'closed')
- */
+// Close a tender (change status to 'closed')
 export async function closeTender(tenderId: number): Promise<Tender> {
   return updateTender(tenderId, { status: "closed" })
 }
 
-/**
- * Cancel a tender (change status to 'cancelled')
- */
+// Cancel a tender (change status to 'cancelled')
 export async function cancelTender(tenderId: number): Promise<Tender> {
   return updateTender(tenderId, { status: "cancelled" })
 }
