@@ -8,7 +8,6 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { Bell } from "lucide-react"
-import RoleSwitcher from "./role-switcher"
 import { useUser } from "@/contexts/user-context"
 
 export function AppHeader() {
@@ -56,36 +55,24 @@ export function AppHeader() {
           </div>
         </div>
         
-        {/* Right section: Theme toggle, Role Switcher (dev), and User */}
+        {/* Right section: Theme toggle and User */}
         <div className="flex flex-row">
           <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
             <ThemeToggleButton />
-            {/* Role Switcher - Remove or hide in production */}
-            <div className="hidden md:block">
-              <RoleSwitcher />
-            </div>
             <Button variant="outline" className="hover:cursor-pointer">
               <Bell className="w-4 h-4" />
             </Button>
           </div>
           {/* Show NavUser when user is loaded, or show loading state */}
-          {loading ? (
-            <div className="flex items-center gap-2 px-2">
-              <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
-              <div className="hidden md:block">
-                <div className="h-4 w-20 bg-muted animate-pulse rounded" />
-              </div>
-            </div>
-          ) : user ? (
+         
             <NavUser 
               user={{
-                name: user.name || "User",
-                email: user.email,
+                name: user?.name || "User",
+                email: user?.email || "",
                 avatar: "/avatars/default.jpg"
               }} 
               hideTextOnMobile={true} 
             />
-          ) : null}
         </div>
       </div>
     </header>

@@ -8,6 +8,7 @@ from core.security import get_current_user_optional, get_tender_visibility_filte
 from core.pagination import normalize_pagination_params, paginate_query
 from models.users import User
 from models.tenders import Tender
+from models.bids import Bid
 from schemas.tenders import (
     TenderResponse,
     TenderCreateRequest,
@@ -74,7 +75,30 @@ async def get_tender(
     if not tender:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tender not found")
     
-    return TenderResponse.model_validate(tender)
+    # Calculate bid statistics if user is owner or admin
+    tender_response = TenderResponse.model_validate(tender)
+    
+    if current_user and (current_user.role == "admin" or tender.created_by_id == current_user.id):
+        # Get bid statistics
+        bid_stats = await db.execute(
+            select(
+                func.count(Bid.id).label("total"),
+                func.min(Bid.proposed_amount).label("lowest"),
+                func.max(Bid.proposed_amount).label("highest"),
+                func.avg(Bid.proposed_amount).label("average")
+            ).where(Bid.tender_id == tender_id)
+        )
+        stats = bid_stats.first()
+        
+        if stats and stats.total > 0:
+            tender_response.total_bids = stats.total
+            tender_response.lowest_bid = float(stats.lowest) if stats.lowest else None
+            tender_response.highest_bid = float(stats.highest) if stats.highest else None
+            tender_response.average_bid = float(stats.average) if stats.average else None
+        else:
+            tender_response.total_bids = 0
+    
+    return tender_response
 
 
 

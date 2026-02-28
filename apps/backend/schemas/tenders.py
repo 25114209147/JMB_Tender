@@ -86,6 +86,12 @@ class TenderResponse(TenderBase):
     created_at: datetime
     updated_at: datetime
     created_by_id: Optional[int] = None
+    
+    # Bid statistics (optional, computed on demand)
+    total_bids: Optional[int] = None
+    lowest_bid: Optional[float] = None
+    highest_bid: Optional[float] = None
+    average_bid: Optional[float] = None
 
     class Config:
         from_attributes = True

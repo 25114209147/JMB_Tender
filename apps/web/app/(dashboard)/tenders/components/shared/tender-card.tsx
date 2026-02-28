@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Eye, DollarSign, Users, Trophy, MapPin, ChevronDown, ChevronUp } from "lucide-react"
+import { Eye, DollarSign, Users, Trophy, MapPin, ChevronDown, ChevronUp, Clock } from "lucide-react"
 import Link from "next/link"
 import type { Tender } from "@/data/tenders"
 import CountdownTimer from "../countdown-timer"
@@ -33,7 +33,6 @@ export default function TenderCard({ tender, viewHref, actions }: TenderCardProp
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CardContent className="p-5">
           <div className="flex flex-col gap-2">
-            {/* Compact Header */}
             <div className="flex items-center justify-between gap-4">
               {/* Left: Status + Title + Quick Stats */}
               <div className="flex-1 min-w-0 flex items-center gap-3">
@@ -59,7 +58,7 @@ export default function TenderCard({ tender, viewHref, actions }: TenderCardProp
                     <Badge variant="secondary">{tender.service_type}</Badge>
                     <div className="flex items-center gap-1.5">
                       <Users className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{tender.total_bids}</span>
+                      <span className="font-medium">{tender.total_bids ?? 0}</span>
                     </div>
                   </div>
                 )}
@@ -94,7 +93,7 @@ export default function TenderCard({ tender, viewHref, actions }: TenderCardProp
                   </div>
                   <div>
                     <p className="text-xs font-medium text-muted-foreground">Total Bids</p>
-                    <p className="text-base font-semibold">{tender.total_bids}</p>
+                    <p className="text-base font-semibold">{tender.total_bids ?? 0}</p>
                   </div>
                 </div>
 
@@ -110,31 +109,39 @@ export default function TenderCard({ tender, viewHref, actions }: TenderCardProp
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                    <Trophy className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                      <Trophy className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-muted-foreground">Highest Bid</p>
+                      <p className="text-sm font-semibold truncate">
+                        RM {tender.highest_bid?.toLocaleString() ?? 0}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-muted-foreground">Highest Bid</p>
-                    <p className="text-sm font-semibold truncate">
-                      RM {tender.highest_bid.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Additional Details */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t">
                 <div className="flex flex-wrap items-center gap-3">
-                  {tender.closing_date && (
-                    <CountdownTimer closingDate={tender.closing_date} closingTime={tender.closing_time} />
+                  {tender.closing_date && tender.closing_date.trim() ? (
+                    <CountdownTimer 
+                      closingDate={tender.closing_date} 
+                      closingTime={tender.closing_time || undefined} 
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>No closing date specified</span>
+                    </div>
                   )}
                   <Badge variant="secondary">{tender.service_type}</Badge>
                 </div>
 
-                {tender.tender_fee && (
+                {tender.tender_fee && tender.tender_fee > 0 && (
                   <Badge variant="outline" className="self-start sm:self-center">
-                    Fee: RM {tender.tender_fee}
+                    Fee: RM {tender.tender_fee.toLocaleString()}
                   </Badge>
                 )}
               </div>

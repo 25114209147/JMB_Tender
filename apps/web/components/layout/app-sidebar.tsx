@@ -9,13 +9,18 @@ import {
   SidebarHeader,
   // SidebarRail,
 } from "@/components/ui/sidebar"
-import { sidebarData } from "@/data/sidebar-data"
+import { getNavItemsForRole, sidebarData } from "@/data/sidebar-data"
 import { Building2 } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "@/contexts/user-context"
+import { useRole } from "@/contexts/role-context"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useUser()
+  const { role } = useRole()
+
+  // Get navigation items based on user's role
+  const navItems = getNavItemsForRole(role)
 
   return (
     <Sidebar collapsible="icon" {...props} >
@@ -33,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarData.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter className="border-t">
         {loading ? (
