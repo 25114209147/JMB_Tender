@@ -33,7 +33,7 @@ export function TenderDetails({ bid }: TenderDetailsProps) {
   if (error || !tender) {
     return (
       <div className="py-4">
-        <ErrorMessage message={error || "Failed to load tender"} title="" size="sm" />
+        <ErrorMessage message={error || "Failed to load tender"} title="" />
       </div>
     )
   }
