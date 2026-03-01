@@ -67,7 +67,7 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
     contractor: [
       {
         title: "Dashboard",
-        url: "/contractor/dashboard",
+        url: "/dashboard/contractor",
         icon: LayoutDashboard,
         iconColor: "text-primary",
       },
@@ -85,7 +85,7 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
       },
       {
         title: "Drafts",
-        url: "/contractor/drafts",
+        url: "/dashboard/contractor/drafts",
         icon: SquarePen,
         iconColor: "text-amber-800",
       },

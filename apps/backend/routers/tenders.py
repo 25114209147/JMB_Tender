@@ -48,30 +48,35 @@ async def get_tenders(
     query = query.offset(offset).limit(page_size)
     tenders, total_count, total_pages = await paginate_query(db, query, count_query, page, page_size)
     
-    # Add bid statistics for each tender if user is owner or admin
+    # Add bid statistics for each tender
+    # Show total_bids and highest_bid to all users (public info)
+    # Show detailed stats (lowest, average) only to owner/admin
     tender_responses = []
     for tender in tenders:
         tender_response = TenderResponse.model_validate(tender)
         
-        # Only calculate stats if user is owner or admin
-        if current_user and (current_user.role == "admin" or tender.created_by_id == current_user.id):
-            bid_stats = await db.execute(
-                select(
-                    func.count(Bid.id).label("total"),
-                    func.min(Bid.proposed_amount).label("lowest"),
-                    func.max(Bid.proposed_amount).label("highest"),
-                    func.avg(Bid.proposed_amount).label("average")
-                ).where(Bid.tender_id == tender.id)
-            )
-            stats = bid_stats.first()
+        # Always calculate total_bids and highest_bid (public information)
+        bid_stats = await db.execute(
+            select(
+                func.count(Bid.id).label("total"),
+                func.min(Bid.proposed_amount).label("lowest"),
+                func.max(Bid.proposed_amount).label("highest"),
+                func.avg(Bid.proposed_amount).label("average")
+            ).where(Bid.tender_id == tender.id)
+        )
+        stats = bid_stats.first()
+        
+        if stats and stats.total > 0:
+            # Public stats - visible to all users
+            tender_response.total_bids = stats.total
+            tender_response.highest_bid = float(stats.highest) if stats.highest else None
             
-            if stats and stats.total > 0:
-                tender_response.total_bids = stats.total
+            # Detailed stats - only for owner/admin
+            if current_user and (current_user.role == "admin" or tender.created_by_id == current_user.id):
                 tender_response.lowest_bid = float(stats.lowest) if stats.lowest else None
-                tender_response.highest_bid = float(stats.highest) if stats.highest else None
                 tender_response.average_bid = float(stats.average) if stats.average else None
-            else:
-                tender_response.total_bids = 0
+        else:
+            tender_response.total_bids = 0
         
         tender_responses.append(tender_response)
     

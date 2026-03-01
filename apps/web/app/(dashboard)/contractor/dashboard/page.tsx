@@ -3,10 +3,19 @@
 import DashboardTemplate, { type DashboardConfig } from "@/components/dashboard/dashboard-template"
 import { contractorDashboardCards, contractorPerformanceCards } from "@/data/dashboards/contractor-dashboard"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Search } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Search, AlertCircle, User } from "lucide-react"
+import Link from "next/link"
 import SummaryCards from "@/components/dashboard/dashboard-summary-card"
+import { useCurrentUser } from "@/hooks/use-current-user"
+import { isContractorProfileComplete, getMissingProfileFields } from "@/lib/profile-utils"
 
 export default function ContractorDashboardPage() {
+  const { user, loading } = useCurrentUser()
+  const profileComplete = isContractorProfileComplete(user)
+  const missingFields = getMissingProfileFields(user)
+
   const config: DashboardConfig = {
     title: "Contractor Dashboard",
     description: "Browse tenders and manage your bids",
@@ -18,9 +27,32 @@ export default function ContractorDashboardPage() {
     },
     sections: [
       {
-        title: "Performance Metrics",
-        description: "Your bidding performance overview",
-        content: <SummaryCards data={contractorPerformanceCards} columns={{ base: 1, md: 2, lg: 2 }} />,
+        title: "Profile Completion",
+        content: (
+          <>
+            {!loading && !profileComplete && (
+              <Alert variant="warning" className="mb-6 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20">
+                <AlertCircle className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="text-yellow-800 dark:text-yellow-300">
+                  Complete Your Profile to Start Bidding
+                </AlertTitle>
+                <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+                  <div>
+                    <p className="text-sm">
+                      Missing information: <strong>{missingFields.join(", ")}</strong>
+                    </p>
+                    <Link href="/profile">
+                      <Button variant="default" className="cursor-pointer mt-1">
+                        <User className="mr-2 h-4 w-4" />
+                        Complete Profile
+                      </Button>
+                    </Link>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </>
+        ),
       },
       {
         title: "Recent Activity",

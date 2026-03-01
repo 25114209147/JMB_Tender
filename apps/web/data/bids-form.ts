@@ -66,7 +66,7 @@ export interface BidFormData {
 
 // Extended form data with tender context (used internally)
 export interface BidFormDataWithTender extends BidFormData {
-  tender_id: string
+  tender_id: number
 }
 
 // Default Empty Form Values
@@ -80,11 +80,11 @@ export const defaultBidFormValues: BidFormData = {
   contact_person_email: "",
   company_website: "",
 
-  // Financial Proposal
+  // Financial Proposal 
   proposed_amount: "",
   include_sst: false,
-  payment_terms: "30 Days",
-  validity_period_days: 90,
+  payment_terms: "",
+  validity_period_days: 0,
 
   // Technical Proposal
   supporting_documents: [],
@@ -103,7 +103,7 @@ export function formDataToBid(
 ): Omit<Bid, "tender"> & { tender: Tender } {
   return {
     id: bidId || `bid-${Date.now()}`,
-    tender_id: formData.tender_id,
+    tender_id: String(formData.tender_id),
     tender,
     company_name: formData.company_name,
     company_registration: formData.company_registration || undefined,

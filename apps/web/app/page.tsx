@@ -1,3 +1,5 @@
+"use client"
+
 import { BenefitsSection } from "@/components/landing-page/benefits-section"
 import { CategoriesSection } from "@/components/landing-page/categories-section"
 import { CtaSection } from "@/components/landing-page/CTA-section"
