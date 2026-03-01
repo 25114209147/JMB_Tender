@@ -1,19 +1,16 @@
-// /**
-//  * ⚠️ DEPRECATED: This file contains mock data for development only
-//  * 
-//  * For production use, import from:
-//  * - Types: @/data/tenders/tender-types
-//  * - API: @/lib/tenders
-//  * - Hooks: @/hooks/use-tenders, @/hooks/use-tender
-//  * 
-//  * See API_INTEGRATION_GUIDE.md for migration instructions
-//  */
+/**
+ * ⚠️ DEPRECATED: This file contains mock data for development only
+ * 
+ * For production use, import from:
+ * - Types: @/data/tenders/tender-types
+ * - API: @/lib/tenders
+ * - Hooks: @/hooks/use-tenders, @/hooks/use-tender
+ * 
+ * See API_INTEGRATION_GUIDE.md for migration instructions
+ */
 
-// import { FormData, EvaluationCriteria } from "./create-tender-form"
-// import type { Tender } from "./tenders/tender-types"
-
-// // Re-export types from the new location for backward compatibility
-// export type { Tender, TenderStatus, TenderListResponse } from "./tenders/tender-types"
+// Re-export types from the new location for backward compatibility
+export type { Tender, TenderStatus, TenderListResponse } from "./tenders/tender-types"
 
 // /** @deprecated Use Tender type from @/data/tenders/tender-types instead */
 // export interface TenderMock extends FormData {

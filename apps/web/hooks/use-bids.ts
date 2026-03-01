@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { getBids } from "@/lib/bids"
-import type { Bid, BidFilters, BidListResponse } from "@/data/bids/bid-types"
+import type { Bid, BidFilters, BidListResponse, BidStatus } from "@/data/bids/bid-types"
 import { ApiClientError } from "@/lib/api"
 
 interface UseBidsResult {
@@ -11,7 +11,7 @@ interface UseBidsResult {
   page: number
   totalPages: number
   refetch: () => Promise<void>
-  updateBidStatus: (bidId: number, status: string) => void
+  updateBidStatus: (bidId: number, status: BidStatus) => void
 }
 
 // Helper to create a stable filter key for comparison
@@ -104,7 +104,7 @@ export function useBids(filters?: BidFilters): UseBidsResult {
   }, [filterKey, fetchBids])
 
   // Optimistically update bid status without refetching
-  const updateBidStatus = useCallback((bidId: number, status: string) => {
+  const updateBidStatus = useCallback((bidId: number, status: BidStatus) => {
     setBids(currentBids => 
       currentBids.map(bid => 
         bid.id === bidId ? { ...bid, status } : bid

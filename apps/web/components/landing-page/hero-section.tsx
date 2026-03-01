@@ -33,7 +33,7 @@ export default function LandingPageHeroSection() {
                         ):
                          (
                             <Button asChild size="lg" className="md:sm text-white bg-primary !text-white hover:bg-primary/90">
-                                <Link href={getDashboardPath()}>Go to Dashboard</Link>
+                                <Link href={getDashboardPath() || "/dashboard"}>Go to Dashboard</Link>
                             </Button>
                         )}
                     </div>

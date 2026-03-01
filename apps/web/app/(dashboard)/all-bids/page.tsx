@@ -131,7 +131,6 @@ export default function AllBidsPage() {
       <ErrorMessage 
         message={error}
         title="Failed to load bids"
-        onRetry={refetch}
       />
     )
   }

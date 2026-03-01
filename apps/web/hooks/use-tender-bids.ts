@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { getTenderBids } from "@/lib/bids"
-import type { Bid } from "@/data/bids/bid-types"
+import type { Bid, BidStatus } from "@/data/bids/bid-types"
 import { ApiClientError } from "@/lib/api"
 
 interface UseTenderBidsResult {
@@ -11,7 +11,7 @@ interface UseTenderBidsResult {
   page: number
   totalPages: number
   refetch: () => Promise<void>
-  updateBidStatus: (bidId: number, status: string) => void
+  updateBidStatus: (bidId: number, status: BidStatus) => void
 }
 
 export function useTenderBids(
@@ -61,7 +61,7 @@ export function useTenderBids(
   }, [fetchBids])
 
   // Optimistically update bid status without refetching
-  const updateBidStatus = useCallback((bidId: number, status: string) => {
+  const updateBidStatus = useCallback((bidId: number, status: BidStatus) => {
     setBids(currentBids => 
       currentBids.map(bid => 
         bid.id === bidId ? { ...bid, status } : bid
