@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { getTenders } from "@/lib/tenders"
+import { getUsers } from "@/lib/users"
 import { ApiClientError } from "@/lib/api"
 import type { Tender } from "@/data/tenders/tender-types"
 import { differenceInDays, parseISO } from "date-fns"
@@ -14,6 +15,7 @@ export interface DashboardStats {
   draft_tenders: number
   total_bids: number
   total_value: number
+  total_users: number
   
   // Tenders closing within 7 days
   tenders_closing_soon: Tender[]
@@ -39,12 +41,16 @@ export function useDashboardStats(): UseDashboardStatsResult {
       setLoading(true)
       setError(null)
       
-      const response = await getTenders({ page: 1, page_size: 100 })
+      // Fetch tenders and users in parallel
+      const [tendersResponse, usersResponse] = await Promise.all([
+        getTenders({ page: 1, page_size: 100 }),
+        getUsers({ page: 1, page_size: 100 }).catch(() => ({ total: 0, users: [], page: 1, page_size: 100, total_pages: 0 }))
+      ])
       
       const now = new Date()
       
       // Filter tenders closing within 7 days
-      const tendersClosingSoon = response.tenders.filter(tender => {
+      const tendersClosingSoon = tendersResponse.tenders.filter(tender => {
         if (tender.status !== 'open') return false
         
         try {
@@ -57,17 +63,18 @@ export function useDashboardStats(): UseDashboardStatsResult {
       })
       
       // Calculate total bids across all tenders
-      const totalBids = response.tenders.reduce((sum, t) => sum + (t.total_bids || 0), 0)
+      const totalBids = tendersResponse.tenders.reduce((sum, t) => sum + (t.total_bids || 0), 0)
       
       const dashboardStats: DashboardStats = {
-        total_tenders: response.total,
-        active_tenders: response.tenders.filter(t => t.status === 'open').length,
-        completed_tenders: response.tenders.filter(t => t.status === 'closed' || t.status === 'awarded').length,
-        draft_tenders: response.tenders.filter(t => t.status === 'draft').length,
+        total_tenders: tendersResponse.total,
+        active_tenders: tendersResponse.tenders.filter(t => t.status === 'open').length,
+        completed_tenders: tendersResponse.tenders.filter(t => t.status === 'closed' || t.status === 'awarded').length,
+        draft_tenders: tendersResponse.tenders.filter(t => t.status === 'draft').length,
         total_bids: totalBids,
-        total_value: response.tenders.reduce((sum, t) => sum + (t.max_budget || 0), 0),
+        total_value: tendersResponse.tenders.reduce((sum, t) => sum + (t.max_budget || 0), 0),
+        total_users: usersResponse.total,
         tenders_closing_soon: tendersClosingSoon,
-        all_tenders: response.tenders,
+        all_tenders: tendersResponse.tenders,
       }
       
       console.log("Calculated dashboard stats:", dashboardStats) 

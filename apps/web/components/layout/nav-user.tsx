@@ -5,6 +5,7 @@ import {
   CircleUserRound,
   LogOut,
 } from "lucide-react"
+import Link from "next/link"
 
 import {
   Avatar,
@@ -104,10 +105,12 @@ export function NavUser({
                 Notifications
               </DropdownMenuItem> */}
             
-            <DropdownMenuItem className="px-4 py-2">
+            <DropdownMenuItem asChild className="px-4 py-2 cursor-pointer">
+              <Link href="/profile">
                 <CircleUserRound className="mr-2 h-4 w-4" />
-                Profile 
-              </DropdownMenuItem>
+                Profile
+              </Link>
+            </DropdownMenuItem>
             </DropdownMenuGroup> 
             <DropdownMenuSeparator />
             <DropdownMenuItem className="px-4 py-2 cursor-pointer" onClick={handleLogout}>
