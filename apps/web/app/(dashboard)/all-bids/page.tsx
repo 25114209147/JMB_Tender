@@ -1,118 +1,131 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Filter, FileText, Award, XCircle, Clock, CheckCircle } from "lucide-react"
 import { useBids } from "@/hooks/use-bids"
+import { useTenders } from "@/hooks/use-tenders"
 import { useRole } from "@/contexts/role-context"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import { hasPermission } from "@/lib/roles"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
-import { EmptyState } from "@/components/ui/empty-state"
-import { BidCard } from "@/components/bid/bid-card"
+import { BidFiltersMobile } from "@/components/bid/bid-filters-mobile"
+import { BidListUnified } from "@/components/bid/bid-list-unified"
+import { getAllBidsStats } from "./components/all-bids-stats"
 import { awardBid, rejectBid } from "@/lib/bids"
-import type { BidStatus } from "@/data/bids/bid-types"
 import DashboardTemplate, { type DashboardConfig } from "@/components/dashboard/dashboard-template"
-import { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
 
 export default function AllBidsPage() {
   const { role } = useRole()
+  const { user } = useCurrentUser()
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [tenderFilter, setTenderFilter] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [bidSortBy, setBidSortBy] = useState<string>("date-desc")
   const [processingId, setProcessingId] = useState<number | null>(null)
 
-  // ✅ Fetch all bids once (no filters) - use for both stats and display
-  // Filter client-side for better performance and to avoid duplicate API calls
-  const { bids: allBids, loading, error, total, refetch } = useBids({
-    page: 1,
-    page_size: 100,
-  })
+  // Fetch all bids once (no filters) - use for both stats and display
+  const bidsFilters = useMemo(() => ({ page: 1, page_size: 100 }), [])
+  const { bids: allBids, loading: bidsLoading, error: bidsError, total, refetch } = useBids(bidsFilters)
 
-  // Only Admin and JMB can view all bids
+  // fetch bids by owned tenders
+  const shouldFetchTenders = role === "JMB"
+  const tendersFilters = useMemo(
+    () => (shouldFetchTenders ? { page: 1, page_size: 100 } : { page: 1, page_size: 0 }),
+    [shouldFetchTenders]
+  )
+  const { tenders: myTenders, loading: tendersLoading, error: tendersError } = useTenders(tendersFilters)
+
+  // Only Admin and JMB can view bids
   if (!hasPermission(role, "bids:manage") && role !== "JMB") {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <p className="text-lg font-semibold mb-2">Access Denied</p>
           <p className="text-muted-foreground mb-4">
-            You don't have permission to view all bids. This page is for admins and JMB only.
+            You don't have permission to view bids. This page is for admins and JMB only.
           </p>
         </div>
       </div>
     )
   }
 
-  // ✅ Filter bids client-side by status and tender_id
+  // - Admin: sees all bids
+  // - JMB: sees only bids for tenders they created
+  const visibleBids = useMemo(() => {
+    if (hasPermission(role, "bids:manage")) {
+      return allBids
+    } else if (role === "JMB" && user) {
+      const myTenderIds = new Set(myTenders.map((t) => t.id))
+      return allBids.filter((bid) => myTenderIds.has(bid.tender_id))
+    }
+    return []
+  }, [allBids, myTenders, role, user])
+
   const filteredBids = useMemo(() => {
-    let filtered = allBids
+    let filtered = visibleBids
     
-    // Filter by status
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter((bid) => 
+        bid.company_name?.toLowerCase().includes(query) ||
+        bid.tender_title?.toLowerCase().includes(query)
+      )
+    }
+    
     if (statusFilter !== "all") {
       filtered = filtered.filter((bid) => bid.status === statusFilter)
     }
     
-    // Filter by tender_id
     if (tenderFilter !== "all") {
       filtered = filtered.filter((bid) => bid.tender_id === parseInt(tenderFilter))
     }
     
-    return filtered
-  }, [allBids, statusFilter, tenderFilter])
+    return filtered.sort((a, b) => {
+      if (bidSortBy === "amount-asc") return a.proposed_amount - b.proposed_amount
+      if (bidSortBy === "amount-desc") return b.proposed_amount - a.proposed_amount
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+  }, [visibleBids, statusFilter, tenderFilter, searchQuery, bidSortBy])
 
-  // ✅ Calculate stats from ALL bids (not filtered)
-  const stats = useMemo(() => {
-    return {
-      total: allBids.length,
-      submitted: allBids.filter((b) => b.status === "submitted").length,
-      awarded: allBids.filter((b) => b.status === "awarded").length,
-      rejected: allBids.filter((b) => b.status === "rejected").length,
-      withdrawn: allBids.filter((b) => b.status === "withdrawn").length,
-    }
-  }, [allBids])
+  const dashboardCards = useMemo(() => getAllBidsStats({ allBids: visibleBids }), [visibleBids])
 
-  // ✅ Get unique tender IDs for filter (from all bids)
-  const tenderIds = useMemo(() => {
-    const uniqueIds = Array.from(new Set(allBids.map((bid) => bid.tender_id)))
-    return uniqueIds
-  }, [allBids])
-
-  // ✅ Handle award bid (Owner/Admin only)
   const handleAward = async (bidId: number) => {
     setProcessingId(bidId)
     try {
-      await awardBid(bidId)
-      // Refetch bids to update UI
-      await refetch()
-    } catch (err) {
-      console.error("Failed to award bid:", err)
-      alert("Failed to award bid")
+      const result = await awardBid(bidId)
+      if (result) {
+        // Force refetch to get updated data
+        await refetch()
+      }
+    } catch (error) {
+      console.error("Failed to award bid:", error)
     } finally {
       setProcessingId(null)
     }
   }
 
-  // ✅ Handle reject bid (Owner/Admin only)
   const handleReject = async (bidId: number) => {
     setProcessingId(bidId)
     try {
-      await rejectBid(bidId)
-      // Refetch bids to update UI
-      await refetch()
-    } catch (err) {
-      console.error("Failed to reject bid:", err)
-      alert("Failed to reject bid")
+      const result = await rejectBid(bidId)
+      if (result) {
+        // Force refetch to get updated data
+        await refetch()
+      }
+    } catch (error) {
+      console.error("Failed to reject bid:", error)
     } finally {
       setProcessingId(null)
     }
   }
 
-  // ✅ Handle loading
+  const loading = bidsLoading || (shouldFetchTenders && tendersLoading)
   if (loading) {
-    return <LoadingSpinner message="Loading all bids..." />
+    return <LoadingSpinner message="Loading bids..." />
   }
 
-  // ✅ Handle error
+  const error = bidsError || tendersError
   if (error) {
     return (
       <ErrorMessage 
@@ -123,143 +136,50 @@ export default function AllBidsPage() {
     )
   }
 
-  // Dashboard summary cards
-  const dashboardCards: SummaryCardData[] = [
-    {
-      title: "Total Bids",
-      value: stats.total,
-      icon: FileText,
-      iconColor: "text-blue-500",
-      iconBoxColor: "bg-blue-50",
-    },
-    {
-      title: "Submitted",
-      value: stats.submitted,
-      icon: Clock,
-      iconColor: "text-yellow-600",
-      iconBoxColor: "bg-yellow-50",
-    },
-    {
-      title: "Awarded",
-      value: stats.awarded,
-      icon: CheckCircle,
-      iconColor: "text-green-600",
-      iconBoxColor: "bg-green-50",
-    },
-    {
-      title: "Rejected",
-      value: stats.rejected,
-      icon: XCircle,
-      iconColor: "text-red-600",
-      iconBoxColor: "bg-red-50",
-    },
-  ]
-
   const config: DashboardConfig = {
-    title: "All Bids",
-    description: `View and manage all bids in the system (${total} ${total === 1 ? "bid" : "bids"})`,
+    title: role === "JMB" ? "My Tenders' Bids" : "All Bids",
+    description:
+      role === "JMB"
+        ? `View and manage bids for your tenders (${visibleBids.length} ${visibleBids.length === 1 ? "bid" : "bids"})`
+        : `View and manage all bids in the system (${total} ${total === 1 ? "bid" : "bids"})`,
     summaryCards: dashboardCards,
     sections: [
       {
-        title: "Bids Management",
         content: (
           <div className="space-y-4">
-            {/* Filters */}
-            <div className="flex items-center gap-4 flex-wrap">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="submitted">Submitted</SelectItem>
-                  <SelectItem value="awarded">Awarded</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="withdrawn">Withdrawn</SelectItem>
-                </SelectContent>
-              </Select>
-              {tenderIds.length > 0 && (
-                <Select value={tenderFilter} onValueChange={setTenderFilter}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Filter by tender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Tenders</SelectItem>
-                    {tenderIds.map((tenderId) => {
-                      const tenderBid = allBids.find((b) => b.tender_id === tenderId)
-                      return (
-                        <SelectItem key={tenderId} value={String(tenderId)}>
-                          {tenderBid?.tender_title || `Tender #${tenderId}`}
-                        </SelectItem>
-                      )
-                    })}
-                  </SelectContent>
-                </Select>
-              )}
-              {(statusFilter !== "all" || tenderFilter !== "all") && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setStatusFilter("all")
-                    setTenderFilter("all")
-                  }}
-                >
-                  Clear filters
-                </Button>
-              )}
-            </div>
+            {/* Filters - Mobile-friendly */}
+            <BidFiltersMobile
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              statusFilter={statusFilter}
+              tenderFilter={tenderFilter}
+              onStatusChange={setStatusFilter}
+              onTenderChange={setTenderFilter}
+              onClearFilters={() => {
+                setSearchQuery("")
+                setStatusFilter("all")
+                setTenderFilter("all")
+                setBidSortBy("date-desc")
+              }}
+              allBids={visibleBids}
+              showTenderFilter={true}
+              showSortBy={true}
+              sortBy={bidSortBy}
+              onSortChange={setBidSortBy}
+            />
 
             {/* Bids List */}
-            {filteredBids.length === 0 ? (
-              <EmptyState
-                icon={FileText}
-                title={statusFilter === "all" ? "No bids found" : `No ${statusFilter} bids`}
-                description={
-                  statusFilter === "all"
-                    ? "There are no bids in the system yet."
-                    : `There are no ${statusFilter} bids.`
-                }
-              />
-            ) : (
-              <div className="space-y-4">
-                {filteredBids.map((bid) => (
-                  <BidCard
-                    key={bid.id}
-                    bid={bid}
-                    showTenderLink={true}
-                    actions={
-                      // Show award/reject buttons for Owner/Admin on submitted bids
-                      (role === "admin" || role === "JMB") && bid.status === "submitted" ? (
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            className="gap-1.5 cursor-pointer"
-                            onClick={() => handleAward(bid.id)}
-                            disabled={processingId === bid.id}
-                          >
-                            <Award className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Award</span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="gap-1.5 cursor-pointer"
-                            onClick={() => handleReject(bid.id)}
-                            disabled={processingId === bid.id}
-                          >
-                            <XCircle className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Reject</span>
-                          </Button>
-                        </div>
-                      ) : null
-                    }
-                  />
-                ))}
-              </div>
-            )}
+            <BidListUnified
+              bids={filteredBids}
+              statusFilter={statusFilter}
+              showActions={true}
+              role={role}
+              processingId={processingId}
+              onAward={handleAward}
+              onReject={handleReject}
+              showTenderLink={true}
+              fromPage="all-bids"
+            />
           </div>
         ),
       },

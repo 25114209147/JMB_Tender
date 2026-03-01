@@ -22,8 +22,8 @@ export function getAllBidsStats({ allBids }: AllBidsStatsProps): SummaryCardData
       title: "Total Bids",
       value: stats.total,
       icon: FileText,
-      iconColor: "text-blue-500",
-      iconBoxColor: "bg-blue-50",
+      iconColor: "text-green-500",
+      iconBoxColor: "bg-green-50",
     },
     {
       title: "Submitted",
@@ -36,8 +36,8 @@ export function getAllBidsStats({ allBids }: AllBidsStatsProps): SummaryCardData
       title: "Awarded",
       value: stats.awarded,
       icon: CheckCircle,
-      iconColor: "text-green-600",
-      iconBoxColor: "bg-green-50",
+      iconColor: "text-blue-600", 
+      iconBoxColor: "bg-blue-50",
     },
     {
       title: "Rejected",
