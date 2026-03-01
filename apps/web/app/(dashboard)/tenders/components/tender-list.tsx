@@ -4,7 +4,7 @@ import { useMemo, useState, ReactNode } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tender } from "@/data/tenders"
-import TenderListFilters from "./tender-list-filters"
+import TenderListFiltersMobile from "./tender-list-filters-mobile"
 
 interface TenderListProps {
   tenders: Tender[]
@@ -64,7 +64,7 @@ export default function TenderList({ tenders, renderCard, emptyState }: TenderLi
 
   return (
     <div className="space-y-6 w-full">
-      <TenderListFilters
+      <TenderListFiltersMobile
         search={search}
         onSearchChange={setSearch}
         status={status}

@@ -29,7 +29,7 @@ interface SummaryCardsProps {
 
 export default function SummaryCards({
   data,
-  columns = { base: 1, md: 2, lg: 4 }
+  columns = { base: 2, md: 2, lg: 4 }
 }: SummaryCardsProps) {
   const gridClasses = `grid grid-cols-${columns.base} md:grid-cols-${columns.md} lg:grid-cols-${columns.lg} gap-4`
 

@@ -13,6 +13,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { 
   MapPin, 
   Calendar, 
@@ -82,11 +88,11 @@ export function TenderCard({
     return (
       <Card className="overflow-hidden transition-all hover:shadow-md">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-2 sm:gap-4">
                 {/* Left: Status + Title + Quick Stats */}
-                <div className="flex-1 min-w-0 flex items-center gap-3">
+                <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
                   {showStatus && (
                     <Badge
                       className={cn(
@@ -98,17 +104,38 @@ export function TenderCard({
                     </Badge>
                   )}
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold line-clamp-1">{tender.title}</h3>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" /> {tender.property_name}
-                    </p>
-                  </div>
+                  <TooltipProvider>
+                    <div className="flex-1 min-w-0">
+                      <Tooltip delayDuration={300}>
+                        <TooltipTrigger asChild>
+                          <h3 className="text-sm sm:text-base font-semibold line-clamp-1 break-words cursor-default">{tender.title}</h3>
+                        </TooltipTrigger>
+                        {tender.title && tender.title.length > 40 && (
+                          <TooltipContent side="top" className="max-w-[400px]">
+                            <p className="text-sm">{tender.title}</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                      <Tooltip delayDuration={300}>
+                        <TooltipTrigger asChild>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 cursor-default">
+                            <MapPin className="h-3 w-3 shrink-0" /> 
+                            <span className="truncate">{tender.property_name}</span>
+                          </p>
+                        </TooltipTrigger>
+                        {tender.property_name && tender.property_name.length > 30 && (
+                          <TooltipContent side="top">
+                            <p className="text-sm max-w-[300px]">{tender.property_name}</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
 
                   {/* Quick stats inline - only when collapsed */}
                   {!isOpen && (
                     <div className="hidden lg:flex items-center gap-4 text-sm">
-                      <Badge variant="secondary">{tender.service_type}</Badge>
+                      <Badge variant="secondary" className="text-xs">{tender.service_type}</Badge>
                       <div className="flex items-center gap-1.5">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">{tender.total_bids ?? 0}</span>
@@ -129,7 +156,7 @@ export function TenderCard({
                   {actions}
 
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer shrink-0">
                       {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
                   </CollapsibleTrigger>

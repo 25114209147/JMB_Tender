@@ -16,7 +16,7 @@ import { Edit, MoreVertical, Trash2, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import { deleteTender } from "@/lib/tenders"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { toast } from "sonner"
+import  {toast} from "@/components/toast/toast"
 
 interface AllTendersListProps {
   tenders: Tender[]
@@ -101,9 +101,6 @@ export default function AllTendersList({
       
       toast.error(errorMessage)
       console.error("Delete error:", error)
-      
-      // Don't close dialog on error so user can retry
-      // setDeleteDialogOpen(false) - commented out intentionally
     }
   }
 
