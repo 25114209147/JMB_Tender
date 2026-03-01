@@ -1,12 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
-  CreditCard,
+  CircleUserRound,
   LogOut,
-  Sparkles,
 } from "lucide-react"
 
 import {
@@ -31,6 +29,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import type { UserData } from "@/data/sidebar-data"
+import { logout } from "@/lib/auth"
 
 export function NavUser({
   user,
@@ -41,6 +40,10 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const initials = user.name.split(" ").map(n => n[0]).join("").toUpperCase()
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <SidebarMenu>
@@ -64,7 +67,7 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side="bottom"
             align="end"
             sideOffset={4}
           >
@@ -82,7 +85,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem className="px-4 py-2">
+              {/* <DropdownMenuItem className="px-4 py-2">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Upgrade to Pro
               </DropdownMenuItem>
@@ -100,10 +103,17 @@ export function NavUser({
               <DropdownMenuItem className="px-4 py-2">
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+              </DropdownMenuItem> */}
+            
+            <DropdownMenuItem className="px-4 py-2 cursor-pointer" asChild>
+              <Link href="/profile">
+                <CircleUserRound className="mr-2 h-4 w-4" />
+                Profile 
+              </Link>
+            </DropdownMenuItem>
+            </DropdownMenuGroup> 
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="px-4 py-2">
+            <DropdownMenuItem className="px-4 py-2 cursor-pointer" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>

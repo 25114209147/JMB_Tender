@@ -1,7 +1,6 @@
 import { type ReactNode } from "react"
-import Link from "next/link"
-import SummaryCards, { type SummaryCardData } from "@/components/layout/dashboard-summary-card"
-import { Button } from "@/components/ui/button"
+import SummaryCards, { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
+import DashboardHeader from "@/components/dashboard/dashboard-header"
 
 export interface DashboardConfig {
   title: string
@@ -14,7 +13,7 @@ export interface DashboardConfig {
     onClick?: () => void
   }
   sections?: Array<{
-    title: string
+    title?: string
     description?: string
     content: ReactNode
   }>
@@ -30,47 +29,27 @@ export default function DashboardTemplate({ config }: DashboardTemplateProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-row gap-2 justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
-          <p className="text-muted-foreground">{description}</p>
-        </div>
-        
-        {primaryAction && (
-          <div>
-            {primaryAction.href ? (
-              <Link href={primaryAction.href}>
-                <Button variant="default" className="hover:cursor-pointer">
-                  {primaryAction.icon}
-                  {primaryAction.label}
-                </Button>
-              </Link>
-            ) : (
-              <Button 
-                variant="default" 
-                className="hover:cursor-pointer"
-                onClick={primaryAction.onClick}
-              >
-                {primaryAction.icon}
-                {primaryAction.label}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+      <DashboardHeader
+        title={title}
+        description={description}
+        primaryAction={primaryAction}
+      />
 
+      
       {/* Summary Cards */}
       <SummaryCards data={summaryCards} />
 
       {/* Additional Sections */}
       {sections && sections.map((section, index) => (
-        <div key={index} className="space-y-4">
-          <div>
-            <h2 className="text-2xl font-semibold">{section.title}</h2>
-            {section.description && (
-              <p className="text-muted-foreground">{section.description}</p>
-            )}
-          </div>
+        <div key={index} className={section.title ? "space-y-3" : ""}>
+          {section.title && (
+            <div>
+              <h2 className="text-xl font-semibold">{section.title}</h2>
+              {section.description && (
+                <p className="text-muted-foreground">{section.description}</p>
+              )}
+            </div>
+          )}
           {section.content}
         </div>
       ))}

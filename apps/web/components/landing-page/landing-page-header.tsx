@@ -4,8 +4,11 @@ import { Building2 } from "lucide-react"
 import Link from "next/link"
 import { ThemeToggleButton } from "../ui/theme-toggle-button"
 import { Button } from "../ui/button"
+import { useCurrentUser } from "@/hooks/use-current-user"
 
 export function LandingHeader() {
+  const { user } = useCurrentUser()
+  
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur w-full supports-[backdrop-filter]:bg-background/60">
       <div className="px-6 mx-auto flex h-16 items-center justify-between">
@@ -27,13 +30,12 @@ export function LandingHeader() {
             <ThemeToggleButton />
           </div>
 
-          {/* <Button variant="ghost" asChild className="hidden sm:flex">
-            <Link href="/login">Login</Link>
-          </Button> */}
-
-          <Button asChild size="sm" className="md:sm text-white bg-primary !text-white hover:bg-primary/90">
-            <Link href="/login">Login</Link>
-          </Button>
+          {/* Only show login button if user is not authenticated */}
+          {!user && (
+            <Button asChild size="sm" className="md:sm text-white bg-primary !text-white hover:bg-primary/90">
+              <Link href="/login">Login</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

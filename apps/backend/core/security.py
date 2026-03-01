@@ -23,10 +23,10 @@ ph = PasswordHasher(
 )
 
 # Standard scheme for protected routes
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
 # For public access
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/users/token", auto_error=False)
 
 def hash_password(password: str) -> str:
     return ph.hash(password)
@@ -123,7 +123,7 @@ def require_role(allowed_roles: Union[str, List[str]]):
 def get_tender_visibility_filter(current_user: Optional[User], model):
     if not current_user or current_user.role == "contractor":
         return model.status == "open"
-    elif current_user.role == "owner":
+    elif current_user.role == "JMB":
         return (model.status == "open") | (model.created_by_id == current_user.id)
     elif current_user.role == "admin":
         return None
@@ -140,7 +140,7 @@ def apply_bid_visibility_filter(query, count_query, current_user: Optional[User]
     elif current_user.role == "contractor":
         query = query.where(bid_model.user_id == current_user.id)
         count_query = count_query.where(bid_model.user_id == current_user.id)
-    elif current_user.role == "owner":
+    elif current_user.role == "JMB":
         query = query.join(tender_model).where(
             (tender_model.created_by_id == current_user.id) | (bid_model.user_id == current_user.id)
         )

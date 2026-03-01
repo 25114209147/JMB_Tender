@@ -1,0 +1,72 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'backend/**'
+      - '.github/workflows/deploy-digitalocean.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Deploy to Digital Ocean App Platform
+        uses: digitalocean/app_action@v1
+        with:
+          app_name: jmb-tender-backend
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          # Adjust based on your DO App Platform config
+          # source_dir: backend
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter web build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Deploy to Digital Ocean App Platform
+        uses: digitalocean/app_action@v1
+        with:
+          app_name: jmb-tender-frontend
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          # source_dir: apps/web

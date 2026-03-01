@@ -1,6 +1,6 @@
 import type { Tender } from "./tenders"
 import { Users, CheckCircle, Clock, XCircle } from "lucide-react"
-import type { SummaryCardData } from "@/components/layout/dashboard-summary-card"
+import type { SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
 
 
 // Bid Entity Type (returned from API)

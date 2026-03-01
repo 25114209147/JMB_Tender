@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { RoleProvider } from '@/contexts/role-context';
+import { UserProvider } from '@/contexts/user-context';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -15,10 +16,12 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange      // Prevent CSS transitions during theme switch
       storageKey="jmb-tender-theme"  // Custom localStorage key
     >
-      <RoleProvider>
-        {children}
-        <Toaster />
-      </RoleProvider>
+      <UserProvider>
+        <RoleProvider>
+          {children}
+          <Toaster />
+        </RoleProvider>
+      </UserProvider>
     </ThemeProvider>
   );
 }

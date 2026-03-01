@@ -4,15 +4,15 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Search } from "lucide-react"
 import { ThemeToggleButton } from "../ui/theme-toggle-button"
 import { NavUser } from "@/components/layout/nav-user"
-import { sidebarData } from "@/data/sidebar-data"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { Bell } from "lucide-react"
-import RoleSwitcher from "./role-switcher"
+import { useUser } from "@/contexts/user-context"
 
 export function AppHeader() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null)
+  const { user, loading } = useUser()
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -33,7 +33,7 @@ export function AppHeader() {
         {/* Left section: Toggle button and Search */}
         <div className="flex flex-row items-center sm:gap-3 md:gap-4 flex-1 min-w-0">
           <SidebarTrigger className=" flex-shrink-0" />
-          <div className="hidden sm:block flex-1 max-w-md">
+          {/* <div className="hidden sm:block flex-1 max-w-md">
             <InputGroup className="w-full">
               <InputGroupInput 
                 ref={inputRef} 
@@ -52,22 +52,27 @@ export function AppHeader() {
               </kbd>
               </InputGroupAddon>
             </InputGroup>
-          </div>
+          </div> */}
         </div>
         
-        {/* Right section: Theme toggle, Role Switcher (dev), and User */}
+        {/* Right section: Theme toggle and User */}
         <div className="flex flex-row">
           <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
             <ThemeToggleButton />
-            {/* Role Switcher - Remove or hide in production */}
-            <div className="hidden md:block">
-              <RoleSwitcher />
-            </div>
-            <Button variant="outline" className="hover:cursor-pointer">
+            {/* <Button variant="outline" className="hover:cursor-pointer">
               <Bell className="w-4 h-4" />
-            </Button>
+            </Button> */}
           </div>
-          <NavUser user={sidebarData.user} hideTextOnMobile={true} />
+          {/* Show NavUser when user is loaded, or show loading state */}
+         
+            <NavUser 
+              user={{
+                name: user?.name || "User",
+                email: user?.email || "",
+                avatar: "/avatars/default.jpg"
+              }} 
+              hideTextOnMobile={true} 
+            />
         </div>
       </div>
     </header>

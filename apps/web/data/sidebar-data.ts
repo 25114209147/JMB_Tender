@@ -1,4 +1,5 @@
-import { LayoutDashboard, FileText, CircleDollarSign, ChartNoAxesCombined, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, FileText, CircleDollarSign, List, Users, type LucideIcon, Edit2, SquarePen } from "lucide-react";
+import type { UserRole } from "@/lib/roles";
 
 export type NavSubItem = {
   readonly title: string;
@@ -11,6 +12,7 @@ export type NavItem = {
   readonly icon?: LucideIcon;
   readonly isActive?: boolean;
   readonly items?: readonly NavSubItem[];
+  readonly iconColor?: string; 
 }
 
 export type UserData = {
@@ -24,48 +26,107 @@ export type SidebarData = {
   readonly navMain: readonly NavItem[];
 }
 
+export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
+  const navItems: Record<UserRole, readonly NavItem[]> = {
+    JMB: [
+      {
+        title: "Dashboard",
+        url: "/dashboard/JMB",
+        icon: LayoutDashboard,
+        iconColor: "text-primary",
+      },
+      {
+        title: "All Tenders",
+        url: "/tenders",
+        icon: FileText,
+        iconColor: "text-purple-800",
+      },
+      {
+        title: "My Tenders",
+        url: "/tenders/my-tenders",
+        icon: List,
+        iconColor: "text-blue-700",
+      },
+      // {
+      //   title: "Draft Tenders",
+      //   url: "/dashboard/JMB/drafts",
+      //   icon: FileText,
+      // },
+      // {
+      //   title: "Completed Tenders",
+      //   url: "/dashboard/JMB/completed",
+      //   icon: FileText,
+      // },
+      {
+        title: "All Bids",
+        url: "/all-bids",
+        icon: CircleDollarSign,
+        iconColor: "text-teal-800",
+      },
+    ],
+    contractor: [
+      {
+        title: "Dashboard",
+        url: "/dashboard/contractor",
+        icon: LayoutDashboard,
+        iconColor: "text-primary",
+      },
+      {
+        title: "All Tenders",
+        url: "/tenders",
+        icon: FileText,
+        iconColor: "text-purple-800",
+      },
+      {
+        title: "My Bids",
+        url: "/my-bids",
+        icon: CircleDollarSign,
+        iconColor: "text-teal-800",
+      },
+      // {
+      //   title: "Drafts",
+      //   url: "/dashboard/contractor/drafts",
+      //   icon: SquarePen,
+      //   iconColor: "text-amber-800",
+      // },
+    ],
+    admin: [
+      {
+        title: "Dashboard",
+        url: "/dashboard/admin",
+        icon: LayoutDashboard,
+        iconColor: "text-primary",
+      },
+      {
+        title: "All Users",
+        url: "/admin/users",
+        icon: Users,
+        iconColor: "text-blue-700",
+      },
+      {
+        title: "All Tenders",
+        url: "/tenders",
+        icon: FileText,
+        iconColor: "text-purple-800",
+      },
+      {
+        title: "All Bids",
+        url: "/all-bids",
+        icon: CircleDollarSign,
+        iconColor: "text-teal-800",
+      },
+    ],
+  };
+
+  return navItems[role] || navItems.JMB;
+}
+
+// Default sidebar data (fallback)
 export const sidebarData: SidebarData = {
   user: {
-    name: "Yan Ting",
-    email: "yt@gmail.com",
-    avatar: "/avatars/yt.jpg",
+    name: "User",
+    email: "user@example.com",
+    avatar: "/avatars/default.jpg",
   },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/owner/dashboard",
-      icon: LayoutDashboard,
-      items: [],
-    },
-    {
-      title: "My Tenders",
-      url: "/tenders/my-tenders",
-      icon: FileText,
-      items: [],
-    },
-    {
-      title: "All Tenders",
-      url: "/tenders",
-      icon: FileText,
-      items: [],
-    },
-    {
-      title: "All Bids",
-      url: "/all-bids",
-      icon: CircleDollarSign,
-      items: [],
-    },
-    {
-      title: "Analytics",
-      url: "/analytics",
-      icon: ChartNoAxesCombined,
-      items: [],
-    },
-    {
-      title: "My Bids",
-      url: "/my-bids",
-      icon: CircleDollarSign,
-      items: [],
-    },
-  ],
+  navMain: getNavItemsForRole("JMB"),
 } as const;

@@ -13,19 +13,37 @@ export default function CountdownTimer({ closingDate, closingTime }: Props) {
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    const update = () => {
-      try {
-        // Default to 23:59 if closingTime is missing but date exists
-        const time = closingTime?.trim() ? closingTime.trim() : "23:59";
-        const target = new Date(`${closingDate}T${time}:00`);
+  const update = () => {
+  try {
+    if (!closingDate || !closingDate.trim()) {
+      setTimeLeft("No date");
+      return;
+    }
 
-        // Invalid date → show dash
-        if (isNaN(target.getTime())) {
-          setTimeLeft("—");
-          return;
-        }
+    let dateString = closingDate.trim().replace(/\s+/g, 'T');
+    let target: Date;
 
-        const diff = target.getTime() - Date.now();
+    if (dateString.includes('T')) {
+      target = new Date(dateString);
+    } else {
+      let time = closingTime?.trim() || "23:59:00";
+      
+      // Ensure time has seconds for consistent ISO format
+      // If "17:00", it becomes "17:00:00". If already "17:00:00", it stays the same.
+      const timeParts = time.split(':');
+      if (timeParts.length === 2) {
+        time = `${time}:00`;
+      }
+      
+      target = new Date(`${dateString}T${time}`);
+    }
+
+    if (isNaN(target.getTime())) {
+      setTimeLeft("Invalid date");
+      return;
+    }
+
+    const diff = target.getTime() - Date.now();
 
         if (diff <= 0) {
           setTimeLeft("Closed");
@@ -43,7 +61,8 @@ export default function CountdownTimer({ closingDate, closingTime }: Props) {
         } else {
           setTimeLeft(`${minutes}m`);
         }
-      } catch {
+      } catch (error) {
+        console.error('CountdownTimer error:', error, closingDate, closingTime);
         setTimeLeft("—");
       }
     };
@@ -53,7 +72,11 @@ export default function CountdownTimer({ closingDate, closingTime }: Props) {
     return () => clearInterval(intervalId);
   }, [closingDate, closingTime]);
 
-  const isUrgent = timeLeft !== "Closed" && !timeLeft.includes("d") && timeLeft !== "—";
+  const isUrgent = timeLeft !== "Closed" && 
+                   !timeLeft.includes("d") && 
+                   timeLeft !== "—" && 
+                   timeLeft !== "No date" && 
+                   timeLeft !== "Invalid date";
 
   return (
     <div

@@ -20,18 +20,24 @@ import { PasswordMatchIndicator } from "./shared/password-match-indicator"
 import { GoogleButton } from "./shared/google-button"
 import { FormDivider } from "./shared/form-divider"
 import { FieldError } from "./shared/field-error"
+import { register } from "@/lib/auth"
+import { useRouter } from "next/navigation"
+import { ApiClientError } from "@/lib/api"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [userType, setUserType] = useState<UserType>("contractor")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [errors, setErrors] = useState<RegisterFormErrors>({})
+  const [apiError, setApiError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setErrors({})
+    setApiError(null)
     
     const formData = new FormData(e.currentTarget)
     const registerData: RegisterFormData = {
@@ -51,9 +57,23 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       return
     }
 
-    // In Future: Implement actual registration logic
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsLoading(false)
+    try { 
+      const response = await register(registerData)
+      if (response.user?.role === "JMB"){
+        router.push("/dashboard/JMB")
+      } else if (response.user?.role === "contractor") {
+        router.push("/dashboard/contractor")
+      } else {
+        router.push("/dashboard/admin")
+      }
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        setApiError(error.detail)
+      } else {
+        setApiError("Registration failed. Please try again.")
+      }
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -64,18 +84,24 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
-          <FieldGroup>
+          <FieldGroup className="gap-4">
+            {apiError && (
+              <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {apiError}
+              </div>
+            )}
+            
             {/* User Type Selection */}
             <Field>
               <FieldLabel>I am a</FieldLabel>
               <RadioGroup value={userType} onValueChange={(value) => setUserType(value as UserType)}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   {USER_TYPE_OPTIONS.map((option) => (
                     <div key={option.value} className="relative">
                       <RadioGroupItem value={option.value} id={option.value} className="peer sr-only" />
                       <Label
                         htmlFor={option.value}
-                        className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                        className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary-700 [&:has([data-state=checked])]:border-primary-700 cursor-pointer"
                       >
                         <span className="text-sm font-medium">{option.label}</span>
                         <span className="text-xs text-muted-foreground">{option.description}</span>
@@ -164,7 +190,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
 
             <Field>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -176,25 +202,25 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               </Button>
             </Field>
 
-            <FormDivider />
+            {/* <FormDivider />
 
             <Field>
               <GoogleButton disabled={isLoading} text="Sign up with Google" />
-            </Field>
+            </Field> */}
 
             <FieldDescription className="text-center">
               Already have an account?{" "}
-              <Link href="/login" className="text-primary underline-offset-4 hover:underline font-medium">
+              <Link href="/login" className="text-primary underline-offset-2 hover:underline font-semibold">
                 Sign in
               </Link>
             </FieldDescription>
 
-            <FieldDescription className="text-center text-xs">
+            {/* <FieldDescription className="text-center text-xs">
               By creating an account, you agree to our{" "}
               <Link href="/terms" className="underline-offset-4 hover:underline">Terms of Service</Link>
               {" "}and{" "}
               <Link href="/privacy" className="underline-offset-4 hover:underline">Privacy Policy</Link>
-            </FieldDescription>
+            </FieldDescription> */}
           </FieldGroup>
         </form>
       </CardContent>

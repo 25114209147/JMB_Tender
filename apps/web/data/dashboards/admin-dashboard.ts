@@ -1,5 +1,5 @@
 import { Users, FileText, Building, Activity, AlertCircle, CheckCircle } from "lucide-react"
-import { type SummaryCardData } from "@/components/layout/dashboard-summary-card"
+import { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
 
 export const adminDashboardCards: SummaryCardData[] = [
   {

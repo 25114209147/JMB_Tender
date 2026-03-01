@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.models import OAuthFlows, OAuthFlowPassword
+from fastapi.security import OAuth2PasswordBearer
 from contextlib import asynccontextmanager
 from routers import users, tenders, bids
 from database import create_all_tables
@@ -13,12 +15,15 @@ app = FastAPI(
     title="JMB Tender System API",
     description="API for managing tenders, bids, and users",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    swagger_ui_init_oauth={
+        "usePkceWithAuthorizationCodeGrant": False,
+    },
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,

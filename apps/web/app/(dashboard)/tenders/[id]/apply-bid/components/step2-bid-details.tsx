@@ -142,7 +142,7 @@ export default function Step2BidDetails({ formData, updateField, tender }: Props
               Payment Terms <span className="text-destructive">*</span>
             </Label>
             <Select
-              value={formData.payment_terms}
+              value={formData.payment_terms || undefined}
               onValueChange={(value) => updateField("payment_terms", value)}
             >
               <SelectTrigger id="payment_terms" className="h-10">
@@ -164,7 +164,7 @@ export default function Step2BidDetails({ formData, updateField, tender }: Props
               Bid Validity Period <span className="text-destructive">*</span>
             </Label>
             <Select
-              value={formData.validity_period_days.toString()}
+              value={formData.validity_period_days > 0 ? formData.validity_period_days.toString() : undefined}
               onValueChange={(value) => updateField("validity_period_days", parseInt(value, 10))}
             >
               <SelectTrigger id="validity_period_days" className="h-10">

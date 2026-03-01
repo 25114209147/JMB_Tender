@@ -48,7 +48,7 @@ export function BudgetRangeSection({ formData, updateField }: Props) {
                 }
             }}
             min={0}
-            max={100000000}
+            max={10000000}
             step={5000}
             className="cursor-pointer"
             />

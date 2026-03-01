@@ -11,6 +11,36 @@ from datetime import timedelta
 router = APIRouter()
 
 
+@router.post("/token", response_model=LoginResponse, include_in_schema=True)
+async def login_for_swagger(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    OAuth2 compatible token endpoint for Swagger UI authorization.
+    Use this endpoint to authorize in Swagger UI's "Authorize" button.
+    
+    - **username**: Your email address
+    - **password**: Your password
+    """
+    # Find user by email (username field contains email)
+    result = await db.execute(select(User).where(User.email == form_data.username))
+    user = result.scalars().first()
+
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Create access token
+    access_token = create_access_token(data={"sub": str(user.id)})
+    
+    user_data = UserResponse.model_validate(user)
+    return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
+
+
 
 @router.get("/", response_model=UserListResponse)
 async def get_users(page: int = 1, page_size: int = 10, current_user: User = Depends(require_role("admin")), db: AsyncSession = Depends(get_db)):
@@ -57,7 +87,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
     if user_existed:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
-    allowed_roles = ["owner", "contractor", "admin"]
+    allowed_roles = ["JMB", "contractor", "admin"]
     if data.role not in allowed_roles:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role")
     
@@ -84,7 +114,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(form_data: LoginRequest = Depends(), db: AsyncSession = Depends(get_db)):
+async def login(form_data: LoginRequest, db: AsyncSession = Depends(get_db)):
     # Find user by email
     result = await db.execute(select(User).where(User.email == form_data.email))  
     user = result.scalars().first()
@@ -95,10 +125,13 @@ async def login(form_data: LoginRequest = Depends(), db: AsyncSession = Depends(
             detail="Incorrect email or password",
         )
     
-    expires_delta = timedelta(minutes=15) if not form_data.remember_me else timedelta(days=30)
+    # Set token expiration based on remember_me
+    expires_delta = timedelta(days=30) if form_data.remember_me else timedelta(minutes=15)
     
-    access_token = create_access_token(data={"sub": str(user.id)})
-    return LoginResponse(access_token=access_token, token_type="bearer", user=user)
+    access_token = create_access_token(data={"sub": str(user.id)}, expires_delta=expires_delta)
+    
+    user_data = UserResponse.model_validate(user)
+    return LoginResponse(access_token=access_token, token_type="bearer", user=user_data)
 
 
 
@@ -106,6 +139,26 @@ async def login(form_data: LoginRequest = Depends(), db: AsyncSession = Depends(
 async def get_current_user_profile(current_user: User = Depends(get_current_user)):
     return UserResponse.model_validate(current_user)
 
+
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user_by_id(
+    user_id: int,
+    current_user: User = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get a specific user by ID (Admin only)
+    """
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalars().first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+    
+    return UserResponse.model_validate(user)
 
 
 @router.patch("/me", response_model=UserResponse)

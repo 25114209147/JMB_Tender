@@ -26,6 +26,7 @@ export type { ValidationResult } from "./create-tender-form-validation"
 export interface FormData {
     // Basic Information
     title: string;
+    description?: string;
     service_type: string;
     custom_service_type?: string;
     // Property Information
@@ -71,6 +72,7 @@ export interface FormData {
 
   export const emptyFormData: FormData = {
     title: "",
+    description: "",
     service_type: "",
     property_name: "",
     property_address_line_1: "",
@@ -112,6 +114,7 @@ export interface FormData {
 
   export const demoFormData: FormData = {
     title: "Security Services Contract 2026 – Taman Melati Condominium",
+    description: "Comprehensive 24/7 security services for residential condominium",
     service_type: "Security",
     property_name: "Taman Melati Condominium",
     property_address_line_1: "No. 1, Jalan Melati 5/2",

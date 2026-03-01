@@ -1,141 +1,217 @@
 "use client"
 
-import { use } from "react"
+import { use, useState, useMemo } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ChevronLeft, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ViewTenderDetails from "../components/view-tender-details"
-import { mockTenders } from "@/data/tenders"
-import { mockBids } from "@/data/bids"
-import { FormData } from "@/data/create-tender-form"
 import { useRole } from "@/contexts/role-context"
-import { hasPermission } from "@/lib/roles"
+import { useTender } from "@/hooks/use-tender"
+import { useTenderBids } from "@/hooks/use-tender-bids"
+import { useCurrentUser } from "@/hooks/use-current-user"
+import { useMyBids } from "@/hooks/use-my-bids"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorMessage } from "@/components/ui/error-message"
+import { BidFiltersMobile } from "@/components/bid/bid-filters-mobile"
+import { BidListUnified } from "@/components/bid/bid-list-unified"
+import { StatMiniCard } from "@/components/shared/stat-mini-card"
+import { awardBid, rejectBid } from "@/lib/bids"
+import PageHeader from "@/components/shared/page-header"
 
 export default function TenderViewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const tenderId = parseInt(id)
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from')
   const { role } = useRole()
-  const tender = mockTenders.find((t) => t.id === id)
+  const { user } = useCurrentUser()
 
-  // Mock function to check if tender belongs to current owner
-  const isOwnerTender = (tenderId: string): boolean => {
-    // Mock: For demo, tenders with IDs "1" and "2" belong to the current owner
-    // In production: return tender.owner_id === currentUser.id
-    return tenderId === "1" || tenderId === "2"
+  const [processingId, setProcessingId] = useState<number | null>(null)
+  const [bidStatusFilter, setBidStatusFilter] = useState<string>("all")
+  const [bidSortBy, setBidSortBy] = useState<string>("date-desc")
+
+  // Determine back navigation based on 'from' query param
+  const backNavigation = useMemo(() => {
+    if (from === 'all-bids') {
+      return { href: '/all-bids', label: 'Back to All Bids' }
+    }
+    if (from === 'my-bids') {
+      return { href: '/my-bids', label: 'Back to My Bids' }
+    }
+    return { href: '/tenders', label: 'Back to Tenders' }
+  }, [from])
+
+  const { tender, loading: tenderLoading, error: tenderError } = useTender(tenderId)
+
+  // Only JMB/Admin can see the full list of bids
+  const canViewAllBids = user && (role === "admin" || role === "JMB")
+  const { bids, loading: bidsLoading, error: bidsError, updateBidStatus } = useTenderBids(
+    canViewAllBids ? tenderId : null,
+    1,
+    100
+  )
+
+  const { bids: myBids } = useMyBids(role === "contractor" ? 1 : 0, 100)
+
+  const handleAward = async (bidId: number) => {
+    setProcessingId(bidId)
+    try {
+      await awardBid(bidId)
+      // Optimistically update the bid status
+      updateBidStatus(bidId, "awarded")
+    } catch (error) {
+      console.error("Failed to award bid:", error)
+    } finally {
+      setProcessingId(null)
+    }
   }
 
-  // Mock function to check if current contractor has applied
-  const hasContractorApplied = (tenderId: string): boolean => {
-    // Mock: Check if there's a bid for this tender
-    // In production: filter by current contractor's user ID
-    return mockBids.some(bid => bid.tender_id === tenderId)
+  const handleReject = async (bidId: number) => {
+    setProcessingId(bidId)
+    try {
+      await rejectBid(bidId)
+      // Optimistically update the bid status
+      updateBidStatus(bidId, "rejected")
+    } catch (error) {
+      console.error("Failed to reject bid:", error)
+    } finally {
+      setProcessingId(null)
+    }
   }
 
-  if (!tender) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <p className="text-lg font-semibold mb-2">Tender not found</p>
-          <Link
-            href="/tenders"
-            className="flex items-center text-sm text-muted-foreground hover:text-foreground border border-gray-200 rounded-md px-4 py-2 bg-gray-50"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Tenders
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  // Memoized Filters
+  const filteredBids = useMemo(() => {
+    if (!bids) return []
+    let result = [...bids]
+    if (bidStatusFilter !== "all") result = result.filter(b => b.status === bidStatusFilter)
 
-  // Convert Tender to FormData format for Step5ReviewSubmit
-  const formData: FormData = {
-    title: tender.title,
-    service_type: tender.service_type,
-    custom_service_type: tender.custom_service_type,
-    property_name: tender.property_name,
-    property_address_line_1: tender.property_address_line_1,
-    property_address_line_2: tender.property_address_line_2,
-    property_city: tender.property_city,
-    property_state: tender.property_state,
-    property_postcode: tender.property_postcode,
-    property_country: tender.property_country,
-    scope_of_work: tender.scope_of_work,
-    contract_period_days: tender.contract_period_days,
-    contract_start_date: tender.contract_start_date,
-    contract_end_date: tender.contract_end_date,
-    required_licenses: tender.required_licenses,
-    custom_licenses: tender.custom_licenses,
-    evaluation_criteria: tender.evaluation_criteria,
-    tender_fee: tender.tender_fee,
-    min_budget: tender.min_budget,
-    max_budget: tender.max_budget,
-    closing_date: tender.closing_date,
-    closing_time: tender.closing_time,
-    site_visit_date: tender.site_visit_date,
-    site_visit_time: tender.site_visit_time,
-    contact_person: tender.contact_person,
-    contact_email: tender.contact_email,
-    contact_phone: tender.contact_phone,
-    tender_documents: tender.tender_documents,
-    status: tender.status,
-    created_at: tender.created_at,
-    updated_at: tender.updated_at,
-  }
+    return result.sort((a, b) => {
+      if (bidSortBy === "amount-asc") return a.proposed_amount - b.proposed_amount
+      if (bidSortBy === "amount-desc") return b.proposed_amount - a.proposed_amount
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+  }, [bids, bidStatusFilter, bidSortBy])
 
-  const updateField = () => {}
+  if (tenderLoading) return <LoadingSpinner message="Loading tender..." />
+  if (tenderError || !tender) return <ErrorMessage message={tenderError || "Tender not found"} />
 
-  // Determine actions based on role
-  const canEdit = 
-    role === "admin" 
-      ? (tender.status === "open" || tender.status === "draft")
-      : role === "owner"
-      ? isOwnerTender(tender.id) && (tender.status === "open" || tender.status === "draft")
-      : false
-
-  const canApply = 
-    role === "contractor" && 
-    tender.status === "open" && 
-    !hasContractorApplied(tender.id)
-
-  const hasApplied = 
-    role === "contractor" && 
-    tender.status === "open" && 
-    hasContractorApplied(tender.id)
+  const isOwner = user?.id === tender.created_by_id
+  const canEdit = (role === "admin" || (role === "JMB" && isOwner)) && tender.status !== "awarded"
+  const hasApplied = myBids.some(b => b.tender_id === tenderId)
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-      <div className="mb-6 flex items-center justify-between">
-        <Link
-          href="/tenders"
-          className="flex items-center text-sm text-muted-foreground hover:text-foreground border border-gray-200 rounded-md px-4 py-2 bg-gray-50"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Tenders
-        </Link>
-        <div className="flex gap-2">
-          {canApply && (
-            <Link href={`/tenders/${tender.id}/apply`}>
-              <Button className="cursor-pointer">Apply Now</Button>
-            </Link>
-          )}
-          {hasApplied && (
-            <Button variant="outline" disabled className="cursor-not-allowed">
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              Already Applied
-            </Button>
-          )}
-          {canEdit && (
-            <Link href={`/tenders/${tender.id}/edit`}>
-              <Button variant="outline" className="cursor-pointer">Edit Tender</Button>
-            </Link>
-          )}
-        </div>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 max-w-7xl">
+      {/* 1. TOP NAVIGATION & ACTIONS */}
+
+      <PageHeader
+        backHref={backNavigation.href}
+        backLabel={backNavigation.label}
+      />
+
+      <header>
+        <h1 className="text-xl font-bold tracking-tight">{tender.title}</h1>
+        <p className="text-muted-foreground"> {tender.property_name}</p>
+      </header>
+
+      {/* 3. MAIN CONTENT */}
+      <div className="space-y-6">
+        {canViewAllBids ? (
+          // JMB/Admin View: Show Tabs for both Details and Bids
+          <Tabs defaultValue="details" className="w-full">
+            <div className="flex items-center justify-between mb-4 border-b pb-2">
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="bids">
+                  Bids <Badge variant="secondary" className="ml-2">({bids?.length || 0})</Badge>
+                </TabsTrigger>
+              </TabsList>
+              {canEdit && (
+                <Link href={`/tenders/${tender.id}/edit`}>
+                  <Button variant="outline" size="sm" className="cursor-pointer">Edit Tender</Button>
+                </Link>
+              )}
+            </div>
+
+            <TabsContent value="details" className="pt-0">
+              <Card>
+                <CardContent className="pt-6">
+                  <ViewTenderDetails formData={tender as any} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="bids" className="pt-0 space-y-4">
+              {/* Filters - Mobile-friendly */}
+              <BidFiltersMobile
+                statusFilter={bidStatusFilter}
+                onStatusChange={setBidStatusFilter}
+                onClearFilters={() => {
+                  setBidStatusFilter("all")
+                  setBidSortBy("date-desc")
+                }}
+                allBids={bids || []}
+                showTenderFilter={false}
+                showSortBy={true}
+                sortBy={bidSortBy}
+                onSortChange={setBidSortBy}
+              />
+
+              {/* Stats Overview */}
+              {bids && bids.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <StatMiniCard label="Total Bids" value={tender.total_bids || 0} color="blue" />
+                  <StatMiniCard 
+                    label="Lowest Bid" 
+                    value={tender.lowest_bid ? `RM ${tender.lowest_bid.toLocaleString()}` : 'N/A'} 
+                    color="green" 
+                  />
+                  <StatMiniCard 
+                    label="Average" 
+                    value={tender.average_bid ? `RM ${tender.average_bid.toLocaleString()}` : 'N/A'} 
+                    color="purple" 
+                  />
+                  <StatMiniCard 
+                    label="Highest" 
+                    value={tender.highest_bid ? `RM ${tender.highest_bid.toLocaleString()}` : 'N/A'} 
+                    color="orange" 
+                  />
+                </div>
+              )}
+
+              {/* Bids List */}
+              <BidListUnified
+                bids={filteredBids}
+                statusFilter={bidStatusFilter}
+                showActions={true}
+                role={role}
+                processingId={processingId}
+                onAward={handleAward}
+                onReject={handleReject}
+                showTenderLink={false}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          // Contractor View: No Tabs, just show details directly
+          <div className="space-y-4">
+            <div className="flex justify-end">
+              {role === "contractor" && !hasApplied && tender.status === "open" && (
+                <Link href={`/tenders/${tender.id}/apply-bid`}>
+                  <Button className="cursor-pointer">Apply Now</Button>
+                </Link>
+              )}
+            </div>
+            <Card>
+              <CardContent className="pt-6">
+                <ViewTenderDetails formData={tender as any} />
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
-
-      <h1 className="text-2xl md:text-3xl font-bold mb-2">Tender Details</h1>
-      <p className="text-muted-foreground mb-6 md:mb-8">View tender information</p>
-
-      <ViewTenderDetails formData={formData} />
     </div>
   )
 }

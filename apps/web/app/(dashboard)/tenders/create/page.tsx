@@ -1,42 +1,140 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Step1Basic from "./components/step1-basic-info"
 import Step2Property from "./components/step2-property-info"
 import Stepper from "@/components/ui/stepper"
 import { STEPS } from "./constants"
-import { demoFormData, FormData } from "@/data/create-tender-form"
+import { emptyFormData, FormData } from "@/data/create-tender-form"
 import { Button } from "@/components/ui/button"
 import Step3ScopeRequirements from "./components/step3-scope-requirements"
 import Step4BudgetTimeline from "./components/step4-budget-timeline"
 import Step5ReviewSubmit from "./components/step5-review-submit"
 import PageHeader from "@/components/shared/page-header"
+import { createTender } from "@/lib/tenders"
+import { ApiClientError } from "@/lib/api"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+import { formatValidationErrorsAsList } from "@/lib/error-formatter"
 
 export default function CreateTenderPage() {
+    const router = useRouter()
     const [currentStep, setCurrentStep] = useState(1)
-    const [formData, setFormData] = useState<FormData>(demoFormData)
+    const [formData, setFormData] = useState<FormData>(emptyFormData)
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [validationErrors, setValidationErrors] = useState<Array<{ field: string; message: string }>>([])
 
-    const totalWeight = formData.evaluation_criteria.reduce((sum, item) => sum + item.weight, 0)
+    const getTotalWeight = () => {
+        return formData.evaluation_criteria.reduce((sum, item) => sum + item.weight, 0)
+    }
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (status: "draft" | "open" = "open") => {
+        const totalWeight = getTotalWeight()
+        
+        // Only validate weights for publishing (status="open")
+        if (status === "open" && totalWeight !== 100) {
+            setError("Evaluation criteria weights must sum to 100")
+            setValidationErrors([])
+            return
+        }
+        
         setLoading(true)
+        setError(null) // Clear previous errors
+        setValidationErrors([]) // Clear previous validation errors
+        
         try {
-            const response = await fetch("/api/tenders", {
-                method: "POST",
-                body: JSON.stringify(formData),
-            })
-            if (!response.ok) {
-                throw new Error("Failed to submit tender")
+            // Convert form data to API format (string to number conversions)
+            const tenderData = {
+                title: formData.title,
+                description: formData.description,
+                service_type: formData.service_type,
+                custom_service_type: formData.custom_service_type,
+                property_name: formData.property_name,
+                property_address_line_1: formData.property_address_line_1,
+                property_address_line_2: formData.property_address_line_2,
+                property_city: formData.property_city,
+                property_state: formData.property_state,
+                property_postcode: formData.property_postcode,
+                property_country: formData.property_country,
+                scope_of_work: formData.scope_of_work,
+                contract_period_days: formData.contract_period_days 
+                    ? parseInt(formData.contract_period_days, 10) 
+                    : 0,
+                contract_start_date: formData.contract_start_date,
+                contract_end_date: formData.contract_end_date,
+                required_licenses: formData.required_licenses,
+                custom_licenses: formData.custom_licenses,
+                evaluation_criteria: formData.evaluation_criteria,
+                tender_fee: formData.tender_fee 
+                    ? parseFloat(formData.tender_fee) 
+                    : 0,
+                min_budget: formData.min_budget 
+                    ? parseFloat(formData.min_budget) 
+                    : 0,
+                max_budget: formData.max_budget 
+                    ? parseFloat(formData.max_budget) 
+                    : 0,
+                closing_date: formData.closing_date,
+                closing_time: formData.closing_time,
+                site_visit_date: formData.site_visit_date,
+                site_visit_time: formData.site_visit_time,
+                contact_person: formData.contact_person,
+                contact_email: formData.contact_email,
+                contact_phone: formData.contact_phone,
+                tender_documents: formData.tender_documents || [],
+                status,
             }
-            const data = await response.json()
-            console.log("Tender submitted successfully", data)
-        } catch (error) {
-            console.error("Error submitting tender", error)
+            await createTender(tenderData)
+            
+            // Redirect based on status
+            if (status === "draft") {
+                router.push("/dashboard/JMB/drafts")
+            } else {
+                router.push("/tenders/my-tenders")
+            }
+        } catch (err) {
+            console.error("Error submitting tender:", err)
+            
+            // Extract user-friendly error message
+            let errorMessage = `Failed to ${status === "draft" ? "save draft" : "publish tender"}. Please check the errors below.`
+            let parsedErrors: Array<{ field: string; message: string }> = []
+            
+            if (err instanceof ApiClientError) {
+                // Parse validation errors into user-friendly format
+                parsedErrors = formatValidationErrorsAsList(err.detail || "")
+                
+                if (parsedErrors.length > 0) {
+                    // Use formatted errors
+                    if (parsedErrors.length === 1 && parsedErrors[0]) {
+                        errorMessage = `${parsedErrors[0].field ?? "Field"}: ${parsedErrors[0].message ?? "Unknown error"}`
+                    } else if (parsedErrors.length > 1) {
+                        errorMessage = parsedErrors
+                            .map(e => `${e.field ?? "Field"}: ${e.message ?? "Unknown error"}`)
+                            .join("; ")
+                    }
+                    // Fallback to detail if parsing fails
+                    else {
+                        errorMessage = err?.detail ?? errorMessage
+                    }
+                }
+            } else if (err instanceof Error) {
+                errorMessage = err.message
+            }
+            
+            setError(errorMessage)
+            setValidationErrors(parsedErrors)
+            
+            // Scroll to top to show error
+            window.scrollTo({ top: 0, behavior: "smooth" })
         } finally {
             setLoading(false)
         }
     }
+    
+    const handleSaveDraft = () => handleSubmit("draft")
+    const handlePublish = () => handleSubmit("open")
 
     const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
         setFormData(prev => ({ ...prev, [field]: value }))
@@ -66,7 +164,7 @@ export default function CreateTenderPage() {
             <PageHeader
                 backHref={`/tenders`}
                 backLabel="Back to Tender"
-                title="Create New Tender"
+                title="Create Tender"
                 description="Fill in the details to create a new tender for your property"
             />
 
@@ -75,6 +173,30 @@ export default function CreateTenderPage() {
                 currentStep={currentStep}
                 onStepClick={setCurrentStep}
             />
+
+            {/* Error Alert */}
+            {error && (
+                <Alert variant="destructive" className="mt-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                        {validationErrors.length > 0 ? (
+                            <div className="space-y-2">
+                                <p className="font-medium">{error}</p>
+                                <ul className="list-disc list-inside space-y-1 text-sm">
+                                    {validationErrors.map((err, index) => (
+                                        <li key={index}>
+                                            <span className="font-medium">{err.field}:</span> {err.message}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            error
+                        )}
+                    </AlertDescription>
+                </Alert>
+            )}
 
             <div className="mt-8 md:mt-10 min-h-[60vh] pb-24 md:pb-0">
                 {renderStepContent()}
@@ -92,27 +214,41 @@ export default function CreateTenderPage() {
                         Back
                     </Button>
                     
-                    {currentStep < STEPS.length ? (
-                        <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setCurrentStep(currentStep + 1)}
-                            className="hover:cursor-pointer"
-                        >
-                            Next
-                        </Button>
-                    ) : (
-                        <Button 
-                            type="button" 
-                            size="sm"
-                            onClick={handleSubmit} 
-                            className="hover:cursor-pointer"
-                            disabled={loading || totalWeight !== 100}>
-                                {loading ? "Submitting..." : "Submit Tender"}
-                            
+                    <div className="flex gap-3">
+                        {currentStep === STEPS.length && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleSaveDraft}
+                                disabled={loading}
+                                className="hover:cursor-pointer"
+                            >
+                                {loading ? "Saving..." : "Save as Draft"}
                             </Button>
-                        )
-                    }
+                        )}
+                        
+                        {currentStep < STEPS.length ? (
+                            <Button
+                                type="button"
+                                size="sm"
+                                onClick={() => setCurrentStep(currentStep + 1)}
+                                className="hover:cursor-pointer"
+                            >
+                                Next
+                            </Button>
+                        ) : (
+                            <Button 
+                                type="button" 
+                                size="sm"
+                                onClick={handlePublish} 
+                                className="hover:cursor-pointer"
+                                disabled={loading || getTotalWeight() !== 100}
+                            >
+                                {loading ? "Publishing..." : "Publish Tender"}
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

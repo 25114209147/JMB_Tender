@@ -14,21 +14,31 @@ import { PasswordInput } from "./shared/password-input"
 import { GoogleButton } from "./shared/google-button"
 import { FormDivider } from "./shared/form-divider"
 import { FieldError } from "./shared/field-error"
+import { login } from "@/lib/auth"
+import { useRouter } from "next/navigation"
+import { ApiClientError } from "@/lib/api"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useUser } from "@/contexts/user-context"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+  const router = useRouter()
+  const { refetch } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<LoginFormErrors>({})
+  const [apiError, setApiError] = useState<string | null>(null)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setErrors({})
+    setApiError(null)
     
     const formData = new FormData(e.currentTarget)
     const loginData: LoginFormData = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
-      rememberMe: false,
+      rememberMe: rememberMe,
     }
 
     const validation = validateLoginForm(loginData)
@@ -39,9 +49,28 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       return
     }
 
-    // TODO: Implement actual login logic
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsLoading(false)
+    try {
+      // Login first (this also clears cache)
+      const response = await login(loginData)
+      
+      // Refetch user data after successful login
+      await refetch()
+      
+      if (response.user.role === "JMB" || response.user.role === "JMB") {
+        router.push("/dashboard/JMB")
+      } else if (response.user?.role === "contractor") {
+        router.push("/dashboard/contractor")
+      } else {
+        router.push("/dashboard/admin")
+      }
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        setApiError(error.detail)
+      } else {
+        setApiError("Login failed. Please try again.")
+      }
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -53,7 +82,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
-            <FieldGroup>
+            <FieldGroup className="gap-4">
+              {apiError && (
+                <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {apiError}
+                </div>
+              )}
+              
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -87,8 +122,24 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 <FieldError error={errors.password} id="password-error" />
               </Field>
 
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="remember-me" 
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  disabled={isLoading}
+                  className="cursor-pointer"
+                />
+                <label
+                  htmlFor="remember-me"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  Remember me 
+                </label>
+              </div>
+
               <Field>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -99,16 +150,17 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   )}
                 </Button>
               </Field>
+              
 
-              <FormDivider />
+              {/* <FormDivider />
 
               <Field>
                 <GoogleButton disabled={isLoading} text="Sign in with Google" />
-              </Field>
+              </Field> */}
 
               <FieldDescription className="text-center">
-                Don&apos;t have an account?{" "}
-                <Link href="/register" className="text-primary underline-offset-4 hover:underline font-medium">
+                Don't have an account?{" "}
+                <Link href="/register" className="text-primary underline-offset-4 hover:underline font-medium cursor-pointer">
                   Sign up
                 </Link>
               </FieldDescription>
