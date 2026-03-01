@@ -6,7 +6,7 @@ import Step1Basic from "./components/step1-basic-info"
 import Step2Property from "./components/step2-property-info"
 import Stepper from "@/components/ui/stepper"
 import { STEPS } from "./constants"
-import { demoFormData, FormData } from "@/data/create-tender-form"
+import { emptyFormData, FormData } from "@/data/create-tender-form"
 import { Button } from "@/components/ui/button"
 import Step3ScopeRequirements from "./components/step3-scope-requirements"
 import Step4BudgetTimeline from "./components/step4-budget-timeline"
@@ -20,7 +20,7 @@ import { AlertCircle } from "lucide-react"
 export default function CreateTenderPage() {
     const router = useRouter()
     const [currentStep, setCurrentStep] = useState(1)
-    const [formData, setFormData] = useState<FormData>(demoFormData)
+    const [formData, setFormData] = useState<FormData>(emptyFormData)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 

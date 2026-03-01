@@ -10,12 +10,12 @@ interface StatMiniCardProps {
 }
 
 const colorClasses = {
-  blue: "text-blue-700 dark:bg-blue-950 dark:text-blue-300",
-  green: "text-green-700 dark:bg-green-950 dark:text-green-300",
-  purple: "text-purple-700 dark:bg-purple-950 dark:text-purple-300",
-  orange: "text-orange-700 dark:bg-orange-950 dark:text-orange-300",
-  red: "text-red-700 dark:bg-red-950 dark:text-red-300",
-  yellow: "text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+  blue: "text-blue-700 dark:text-blue-400",
+  green: "text-green-700 dark:text-green-400",
+  purple: "text-purple-700 dark:text-purple-400",
+  orange: "text-orange-700 dark:text-orange-400",
+  red: "text-red-700 dark:text-red-400",
+  yellow: "text-yellow-700 dark:text-yellow-400",
 }
 
 export function StatMiniCard({ label, value, color }: StatMiniCardProps) {

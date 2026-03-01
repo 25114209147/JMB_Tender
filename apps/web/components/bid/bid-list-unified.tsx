@@ -37,7 +37,7 @@ export function BidListUnified({
         title={statusFilter === "all" ? "No bids found" : `No ${statusFilter} bids`}
         description={
           statusFilter === "all"
-            ? "There are no bids in the system yet."
+            ? "There are no bids yet."
             : `There are no ${statusFilter} bids. Try adjusting your filters.`
         }
       />

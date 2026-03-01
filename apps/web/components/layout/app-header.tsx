@@ -33,7 +33,7 @@ export function AppHeader() {
         {/* Left section: Toggle button and Search */}
         <div className="flex flex-row items-center sm:gap-3 md:gap-4 flex-1 min-w-0">
           <SidebarTrigger className=" flex-shrink-0" />
-          <div className="hidden sm:block flex-1 max-w-md">
+          {/* <div className="hidden sm:block flex-1 max-w-md">
             <InputGroup className="w-full">
               <InputGroupInput 
                 ref={inputRef} 
@@ -52,16 +52,16 @@ export function AppHeader() {
               </kbd>
               </InputGroupAddon>
             </InputGroup>
-          </div>
+          </div> */}
         </div>
         
         {/* Right section: Theme toggle and User */}
         <div className="flex flex-row">
           <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
             <ThemeToggleButton />
-            <Button variant="outline" className="hover:cursor-pointer">
+            {/* <Button variant="outline" className="hover:cursor-pointer">
               <Bell className="w-4 h-4" />
-            </Button>
+            </Button> */}
           </div>
           {/* Show NavUser when user is loaded, or show loading state */}
          

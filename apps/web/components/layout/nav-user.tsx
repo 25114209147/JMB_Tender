@@ -1,11 +1,11 @@
 "use client"
 
+import Link from "next/link"
 import {
   ChevronsUpDown,
   CircleUserRound,
   LogOut,
 } from "lucide-react"
-import Link from "next/link"
 
 import {
   Avatar,
@@ -67,7 +67,7 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side="bottom"
             align="end"
             sideOffset={4}
           >
@@ -105,10 +105,10 @@ export function NavUser({
                 Notifications
               </DropdownMenuItem> */}
             
-            <DropdownMenuItem asChild className="px-4 py-2 cursor-pointer">
+            <DropdownMenuItem className="px-4 py-2 cursor-pointer" asChild>
               <Link href="/profile">
                 <CircleUserRound className="mr-2 h-4 w-4" />
-                Profile
+                Profile 
               </Link>
             </DropdownMenuItem>
             </DropdownMenuGroup> 
