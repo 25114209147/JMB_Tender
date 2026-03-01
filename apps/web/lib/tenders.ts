@@ -74,7 +74,7 @@ export async function deleteTender(tenderId: number): Promise<void> {
     await api.delete<void>(`/tenders/${tenderId}`)
   } catch (error) {
     if (error instanceof ApiClientError) {
-      throw error
+      throw new Error(error.detail || "Failed to delete tender. Please try again.")
     }
     throw new Error("Failed to delete tender. Please try again.")
   }

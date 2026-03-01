@@ -13,7 +13,7 @@ export interface DashboardConfig {
     onClick?: () => void
   }
   sections?: Array<{
-    title: string
+    title?: string
     description?: string
     content: ReactNode
   }>
@@ -41,13 +41,15 @@ export default function DashboardTemplate({ config }: DashboardTemplateProps) {
 
       {/* Additional Sections */}
       {sections && sections.map((section, index) => (
-        <div key={index} className="space-y-3">
-          <div>
-            <h2 className="text-xl font-semibold">{section.title}</h2>
-            {section.description && (
-              <p className="text-muted-foreground">{section.description}</p>
-            )}
-          </div>
+        <div key={index} className={section.title ? "space-y-3" : ""}>
+          {section.title && (
+            <div>
+              <h2 className="text-xl font-semibold">{section.title}</h2>
+              {section.description && (
+                <p className="text-muted-foreground">{section.description}</p>
+              )}
+            </div>
+          )}
           {section.content}
         </div>
       ))}

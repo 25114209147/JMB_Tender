@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from typing import Optional
 from datetime import datetime, date
 from database import get_db
@@ -48,8 +48,35 @@ async def get_tenders(
     query = query.offset(offset).limit(page_size)
     tenders, total_count, total_pages = await paginate_query(db, query, count_query, page, page_size)
     
+    # Add bid statistics for each tender if user is owner or admin
+    tender_responses = []
+    for tender in tenders:
+        tender_response = TenderResponse.model_validate(tender)
+        
+        # Only calculate stats if user is owner or admin
+        if current_user and (current_user.role == "admin" or tender.created_by_id == current_user.id):
+            bid_stats = await db.execute(
+                select(
+                    func.count(Bid.id).label("total"),
+                    func.min(Bid.proposed_amount).label("lowest"),
+                    func.max(Bid.proposed_amount).label("highest"),
+                    func.avg(Bid.proposed_amount).label("average")
+                ).where(Bid.tender_id == tender.id)
+            )
+            stats = bid_stats.first()
+            
+            if stats and stats.total > 0:
+                tender_response.total_bids = stats.total
+                tender_response.lowest_bid = float(stats.lowest) if stats.lowest else None
+                tender_response.highest_bid = float(stats.highest) if stats.highest else None
+                tender_response.average_bid = float(stats.average) if stats.average else None
+            else:
+                tender_response.total_bids = 0
+        
+        tender_responses.append(tender_response)
+    
     return TenderListResponse(
-        tenders=[TenderResponse.model_validate(t) for t in tenders],
+        tenders=tender_responses,
         total=total_count,
         page=page,
         page_size=page_size,
@@ -195,25 +222,17 @@ async def delete_tender(
     if not tender:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Tender with id {tender_id} not found")
     
-    if current_user.role == "admin":
-        await db.delete(tender)
+    if current_user.role == "admin" or tender.created_by_id == current_user.id:
+        # First, delete all bids associated with this tender
+        await db.execute(delete(Bid).where(Bid.tender_id == tender_id))
+        
+        # Then delete the tender
+        await db.execute(delete(Tender).where(Tender.id == tender_id))
         await db.commit()
         return None
-
-    # For JMBs
-    if tender.created_by_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-
-    # if tender.status != TenderStatus.DRAFT:
-    #     raise HTTPException(
-    #         status_code=400, 
-    #         detail="You cannot delete a tender that has been published. Please mark it as Cancelled instead."
-    #     )
     
-    await db.delete(tender)
-    await db.commit()
-    
-    return None
+    # If not authorized, raise 403 error
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this tender")
 
 
 
