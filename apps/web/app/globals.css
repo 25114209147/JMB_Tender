@@ -113,13 +113,11 @@
 }
 
 /* BASE STYLES */
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+html {
+  scrollbar-gutter: stable !important;
   scroll-behavior: smooth;
+  font-size: 16px;
 }
-
 body {
   color: var(--foreground);
   background: var(--background);
@@ -127,11 +125,15 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Responsive text size based on screen size */
-html {
-  font-size: 16px; 
+body[data-scroll-locked] {
+  margin-right: 0 !important;
+  overflow: hidden !important;
 }
 
 @media (min-width: 640px) {
@@ -261,4 +263,3 @@ a:hover {
     @apply bg-background text-foreground;
   }
 }
-
