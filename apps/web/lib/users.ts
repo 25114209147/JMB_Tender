@@ -34,3 +34,17 @@ export async function getUsers(
     throw new Error("Failed to fetch users. Please try again.")
   }
 }
+
+/**
+ * Get a single user by ID (Admin only)
+ */
+export async function getUserById(userId: number): Promise<UserResponse> {
+  try {
+    return await api.get<UserResponse>(`/users/${userId}`)
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      throw error
+    }
+    throw new Error("Failed to fetch user. Please try again.")
+  }
+}

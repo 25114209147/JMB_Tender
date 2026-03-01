@@ -93,23 +93,27 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
     admin: [
       {
         title: "Dashboard",
-        url: "/admin/dashboard",
+        url: "/dashboard/admin",
         icon: LayoutDashboard,
+        iconColor: "text-primary",
       },
       {
         title: "All Users",
         url: "/admin/users",
         icon: Users,
+        iconColor: "text-blue-700",
       },
       {
         title: "All Tenders",
         url: "/tenders",
         icon: FileText,
+        iconColor: "text-purple-800",
       },
       {
         title: "All Bids",
         url: "/all-bids",
         icon: CircleDollarSign,
+        iconColor: "text-teal-800",
       },
     ],
   };

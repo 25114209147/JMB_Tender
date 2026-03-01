@@ -16,6 +16,7 @@ import { createTender } from "@/lib/tenders"
 import { ApiClientError } from "@/lib/api"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { formatValidationErrorsAsList } from "@/lib/error-formatter"
 
 export default function CreateTenderPage() {
     const router = useRouter()
@@ -23,6 +24,7 @@ export default function CreateTenderPage() {
     const [formData, setFormData] = useState<FormData>(emptyFormData)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [validationErrors, setValidationErrors] = useState<Array<{ field: string; message: string }>>([])
 
     const getTotalWeight = () => {
         return formData.evaluation_criteria.reduce((sum, item) => sum + item.weight, 0)
@@ -34,11 +36,13 @@ export default function CreateTenderPage() {
         // Only validate weights for publishing (status="open")
         if (status === "open" && totalWeight !== 100) {
             setError("Evaluation criteria weights must sum to 100")
+            setValidationErrors([])
             return
         }
         
         setLoading(true)
         setError(null) // Clear previous errors
+        setValidationErrors([]) // Clear previous validation errors
         
         try {
             // Convert form data to API format (string to number conversions)
@@ -94,16 +98,33 @@ export default function CreateTenderPage() {
             console.error("Error submitting tender:", err)
             
             // Extract user-friendly error message
-            let errorMessage = `Failed to ${status === "draft" ? "save draft" : "submit tender"}. Please try again.`
+            let errorMessage = `Failed to ${status === "draft" ? "save draft" : "publish tender"}. Please check the errors below.`
+            let parsedErrors: Array<{ field: string; message: string }> = []
             
             if (err instanceof ApiClientError) {
-                // Use the detailed error message from API
-                errorMessage = err.detail || errorMessage
+                // Parse validation errors into user-friendly format
+                parsedErrors = formatValidationErrorsAsList(err.detail || "")
+                
+                if (parsedErrors.length > 0) {
+                    // Use formatted errors
+                    if (parsedErrors.length === 1 && parsedErrors[0]) {
+                        errorMessage = `${parsedErrors[0].field ?? "Field"}: ${parsedErrors[0].message ?? "Unknown error"}`
+                    } else if (parsedErrors.length > 1) {
+                        errorMessage = parsedErrors
+                            .map(e => `${e.field ?? "Field"}: ${e.message ?? "Unknown error"}`)
+                            .join("; ")
+                    }
+                    // Fallback to detail if parsing fails
+                    else {
+                        errorMessage = err?.detail ?? errorMessage
+                    }
+                }
             } else if (err instanceof Error) {
                 errorMessage = err.message
             }
             
             setError(errorMessage)
+            setValidationErrors(parsedErrors)
             
             // Scroll to top to show error
             window.scrollTo({ top: 0, behavior: "smooth" })
@@ -158,7 +179,22 @@ export default function CreateTenderPage() {
                 <Alert variant="destructive" className="mt-6">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription>
+                        {validationErrors.length > 0 ? (
+                            <div className="space-y-2">
+                                <p className="font-medium">{error}</p>
+                                <ul className="list-disc list-inside space-y-1 text-sm">
+                                    {validationErrors.map((err, index) => (
+                                        <li key={index}>
+                                            <span className="font-medium">{err.field}:</span> {err.message}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            error
+                        )}
+                    </AlertDescription>
                 </Alert>
             )}
 

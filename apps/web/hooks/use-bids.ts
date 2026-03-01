@@ -11,6 +11,7 @@ interface UseBidsResult {
   page: number
   totalPages: number
   refetch: () => Promise<void>
+  updateBidStatus: (bidId: number, status: string) => void
 }
 
 // Helper to create a stable filter key for comparison
@@ -102,6 +103,27 @@ export function useBids(filters?: BidFilters): UseBidsResult {
     }
   }, [filterKey, fetchBids])
 
+  // Optimistically update bid status without refetching
+  const updateBidStatus = useCallback((bidId: number, status: string) => {
+    setBids(currentBids => 
+      currentBids.map(bid => 
+        bid.id === bidId ? { ...bid, status } : bid
+      )
+    )
+    
+    // Update cache as well
+    const cached = bidsCache.get(filterKey)
+    if (cached) {
+      const updatedBids = cached.data.bids.map(bid =>
+        bid.id === bidId ? { ...bid, status } : bid
+      )
+      bidsCache.set(filterKey, {
+        data: { ...cached.data, bids: updatedBids },
+        timestamp: cached.timestamp
+      })
+    }
+  }, [filterKey])
+
   return {
     bids,
     loading,
@@ -110,5 +132,6 @@ export function useBids(filters?: BidFilters): UseBidsResult {
     page,
     totalPages,
     refetch: fetchBids,
+    updateBidStatus,
   }
 }

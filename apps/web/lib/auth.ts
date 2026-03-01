@@ -24,6 +24,8 @@ export interface UserResponse {
   website?: string
   experience_years?: number
   bio?: string
+  created_at?: string
+  full_name?: string
 }
 
 /**

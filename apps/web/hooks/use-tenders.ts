@@ -34,6 +34,15 @@ export function useTenders(filters?: TenderFilters): UseTendersResult {
   const [totalPages, setTotalPages] = useState(0)
 
   const fetchTenders = useCallback(async () => {
+    if (filters && filters.page === 0) {
+      setLoading(false)
+      setTenders([])
+      setTotal(0)
+      setPage(0)
+      setTotalPages(0)
+      return
+    }
+    
     try {
       setLoading(true)
       setError(null)

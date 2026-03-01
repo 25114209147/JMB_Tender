@@ -20,6 +20,8 @@ import { ApiClientError } from "@/lib/api"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
 import PageHeader from "@/components/shared/page-header"
+import { formatValidationErrorsAsList } from "@/lib/error-formatter"
+import type { TenderStatus, TenderUpdateRequest } from "@/data/tenders/tender-types"
 
 export default function TenderEditPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -30,6 +32,7 @@ export default function TenderEditPage({ params }: { params: Promise<{ id: strin
   const [dataLoaded, setDataLoaded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Array<{ field: string; message: string }>>([])
 
   // ✅ Fetch tender data from API
   const { tender, loading: tenderLoading, error: tenderError } = useTender(tenderId)
@@ -105,15 +108,17 @@ export default function TenderEditPage({ params }: { params: Promise<{ id: strin
     // Validate evaluation criteria weights
     if (totalWeight !== 100) {
       setError("Evaluation criteria weights must sum to 100")
+      setValidationErrors([])
       return
     }
 
     setSubmitting(true)
     setError(null)
+    setValidationErrors([])
 
     try {
       // Convert form data to API format
-      const updateData = {
+      const updateData: TenderUpdateRequest = {
         title: formData.title,
         description: formData.description,
         service_type: formData.service_type,
@@ -151,7 +156,7 @@ export default function TenderEditPage({ params }: { params: Promise<{ id: strin
         contact_email: formData.contact_email,
         contact_phone: formData.contact_phone,
         tender_documents: formData.tender_documents || [],
-        status: formData.status,
+        status: formData.status as TenderStatus,
       }
 
       await updateTender(tenderId, updateData)
@@ -159,14 +164,28 @@ export default function TenderEditPage({ params }: { params: Promise<{ id: strin
     } catch (err) {
       console.error("Error updating tender:", err)
       
-      let errorMessage = "Failed to update tender. Please try again."
+      let errorMessage = "Failed to update tender. Please check the errors below."
+      let parsedErrors: Array<{ field: string; message: string }> = []
+      
       if (err instanceof ApiClientError) {
-        errorMessage = err.detail || errorMessage
+        // Parse validation errors into user-friendly format
+        parsedErrors = formatValidationErrorsAsList(err.detail || "")
+        
+        if (parsedErrors.length > 0) {
+          // Use formatted errors
+          errorMessage = parsedErrors.length === 1
+            ? `${parsedErrors[0]?.field ?? ""}: ${parsedErrors[0]?.message ?? ""}`
+            : errorMessage
+        } else {
+          // Fallback to detail if parsing fails
+          errorMessage = err?.detail ?? errorMessage
+        }
       } else if (err instanceof Error) {
         errorMessage = err.message
       }
       
       setError(errorMessage)
+      setValidationErrors(parsedErrors)
       window.scrollTo({ top: 0, behavior: "smooth" })
     } finally {
       setSubmitting(false)
@@ -211,7 +230,22 @@ export default function TenderEditPage({ params }: { params: Promise<{ id: strin
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {validationErrors.length > 0 ? (
+              <div className="space-y-2">
+                <p className="font-medium">{error}</p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {validationErrors.map((err, index) => (
+                    <li key={index}>
+                      <span className="font-medium">{err.field}:</span> {err.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              error
+            )}
+          </AlertDescription>
         </Alert>
       )}
 

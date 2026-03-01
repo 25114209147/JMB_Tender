@@ -274,7 +274,7 @@ export default function Step4ReviewSubmit({ formData, updateField, tender }: Pro
             <Alert variant="default" className="bg-amber-50 border-amber-200 dark:bg-amber-950/20">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-sm text-amber-600 dark:text-amber-400">
-                No documents uploaded. Please upload at least one supporting document or provide a methodology.
+                Please upload at least one supporting document or provide a methodology.
               </AlertDescription>
             </Alert>
           )}

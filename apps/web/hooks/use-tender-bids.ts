@@ -11,6 +11,7 @@ interface UseTenderBidsResult {
   page: number
   totalPages: number
   refetch: () => Promise<void>
+  updateBidStatus: (bidId: number, status: string) => void
 }
 
 export function useTenderBids(
@@ -59,6 +60,15 @@ export function useTenderBids(
     fetchBids()
   }, [fetchBids])
 
+  // Optimistically update bid status without refetching
+  const updateBidStatus = useCallback((bidId: number, status: string) => {
+    setBids(currentBids => 
+      currentBids.map(bid => 
+        bid.id === bidId ? { ...bid, status } : bid
+      )
+    )
+  }, [])
+
   return {
     bids,
     loading,
@@ -67,5 +77,6 @@ export function useTenderBids(
     page: currentPage,
     totalPages,
     refetch: fetchBids,
+    updateBidStatus,
   }
 }

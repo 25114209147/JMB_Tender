@@ -13,14 +13,22 @@ import type {
  */
 export async function getBids(filters?: BidFilters): Promise<BidListResponse> {
   try {
-    return await api.get<BidListResponse>("/bids/", {
-      params: {
-        page: filters?.page,
-        page_size: filters?.page_size,
-        tender_id: filters?.tender_id,
-        status: filters?.status,
-      },
-    })
+    // Only include params that are defined and valid
+    const params: Record<string, any> = {}
+    if (filters?.page !== undefined && filters.page > 0) {
+      params.page = filters.page
+    }
+    if (filters?.page_size !== undefined && filters.page_size > 0) {
+      params.page_size = filters.page_size
+    }
+    if (filters?.tender_id !== undefined) {
+      params.tender_id = filters.tender_id
+    }
+    if (filters?.status) {
+      params.status = filters.status
+    }
+    
+    return await api.get<BidListResponse>("/bids/", { params })
   } catch (error) {
     if (error instanceof ApiClientError) {
       throw error

@@ -12,13 +12,19 @@ export async function getTenders(
   filters?: TenderFilters
 ): Promise<TenderListResponse> {
   try {
-    return await api.get<TenderListResponse>("/tenders/", {
-      params: {
-        page: filters?.page,
-        page_size: filters?.page_size,
-        status: filters?.status,
-      },
-    })
+    // Only include params that are defined and valid
+    const params: Record<string, any> = {}
+    if (filters?.page !== undefined && filters.page > 0) {
+      params.page = filters.page
+    }
+    if (filters?.page_size !== undefined && filters.page_size > 0) {
+      params.page_size = filters.page_size
+    }
+    if (filters?.status) {
+      params.status = filters.status
+    }
+    
+    return await api.get<TenderListResponse>("/tenders/", { params })
   } catch (error) {
     if (error instanceof ApiClientError) {
       throw error
