@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/use-current-user"
+import {useRole} from "@/contexts/role-context"
 
 export default function LandingPageHeroSection() {
+    const { user } = useCurrentUser()
+    const { role } = useRole()
+
+    const getDashboardPath = () => {
+        if (role === "admin") return "/dashboard/admin"
+        if (role === "JMB") return "/dashboard/JMB"
+        if (role === "contractor") return "/dashboard/contractor"
+    }
+
     return (
         <section className="flex-1">
             <div className="flex flex-col items-center justify-center px-6 py-10 md:py-20 text-center">
@@ -10,17 +21,27 @@ export default function LandingPageHeroSection() {
                         Malaysia’s Centralized Tender Platform
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground mb-6">
-                        Post tenders, manage submissions, and find the right partners—all in one place.
+                        Post tenders, manage submissions, and find the right partners
+                        <br/>
+                        <span className="font-semibold">All in one place.</span>
                     </p>
                     <div className="flex flex-wrap justify-center gap-4">
-                        <Button asChild size="lg" className="md:sm text-white bg-primary !text-white hover:bg-primary/90">
-                            <Link href="/register">Get Started</Link>
-                        </Button>
+                        { !user ? (
+                            <Button asChild size="lg" className="md:sm text-white bg-primary !text-white hover:bg-primary/90">
+                                <Link href="/register">Get Started</Link>
+                            </Button>
+                        ):
+                         (
+                            <Button asChild size="lg" className="md:sm text-white bg-primary !text-white hover:bg-primary/90">
+                                <Link href={getDashboardPath()}>Go to Dashboard</Link>
+                            </Button>
+                        )}
                     </div>
-                    <p className="mt-4 text-sm text-muted-foreground">
+                    {/* <p className="mt-4 text-sm text-muted-foreground">
                         Free to join • No hidden fees • SSM verification required
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </section>
-        )}
+    )
+}

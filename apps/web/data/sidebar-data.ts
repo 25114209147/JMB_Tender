@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, CircleDollarSign, List, Users, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, FileText, CircleDollarSign, List, Users, type LucideIcon, Edit2, SquarePen } from "lucide-react";
 import type { UserRole } from "@/lib/roles";
 
 export type NavSubItem = {
@@ -69,16 +69,25 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
         title: "Dashboard",
         url: "/contractor/dashboard",
         icon: LayoutDashboard,
+        iconColor: "text-primary",
       },
       {
         title: "All Tenders",
         url: "/tenders",
         icon: FileText,
+        iconColor: "text-purple-800",
       },
       {
         title: "My Bids",
         url: "/my-bids",
         icon: CircleDollarSign,
+        iconColor: "text-teal-800",
+      },
+      {
+        title: "Drafts",
+        url: "/contractor/drafts",
+        icon: SquarePen,
+        iconColor: "text-amber-800",
       },
     ],
     admin: [

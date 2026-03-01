@@ -10,6 +10,7 @@
  */
 
 import { FormData, EvaluationCriteria } from "./create-tender-form"
+import type { Tender } from "./tenders/tender-types"
 
 // Re-export types from the new location for backward compatibility
 export type { Tender, TenderStatus, TenderListResponse } from "./tenders/tender-types"

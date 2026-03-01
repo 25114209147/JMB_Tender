@@ -28,6 +28,7 @@ import DashboardHeader from "@/components/dashboard/dashboard-header"
 import { useRole } from "@/contexts/role-context"
 import { hasPermission } from "@/lib/roles"
 import { useTenderList } from "@/hooks/use-tender-list"
+import { useMyBids } from "@/hooks/use-my-bids"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -70,31 +71,41 @@ export default function TenderListPage({
   const { role } = useRole()
   const canCreate = hasPermission(role, "tenders:create")
 
-  // Use wrapper hook that handles data fetching and filtering
+  // Fetch tenders and bids IN PARALLEL (both hooks start fetching immediately)
   const { tenders, loading, error, total, refetch } = useTenderList({
     filters,
     useMyTendersHook,
     clientSideFilter,
   })
+  
+  // Fetch bids immediately in parallel (don't wait for tenders)
+  // This ensures bids are loading while tenders are loading
+  const bidsQuery = useMyBids(role === "contractor" ? 1 : 0, 100)
 
-  // Handle loading state
-  if (loading) {
-    return <LoadingSpinner message={`Loading ${title.toLowerCase()}...`} />
-  }
+  // Progressive rendering - show page structure immediately, render content as data loads
+  // This matches the My Bids pattern for fast perceived performance
 
-  // Handle error state
-  if (error) {
+  // Handle error state (only show if not loading and we have an error)
+  if (error && !loading) {
     return (
-      <ErrorMessage
-        message={error}
-        title={`Failed to load ${title.toLowerCase()}`}
-        onRetry={refetch}
-      />
+      <div className="space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+            <p className="text-muted-foreground mt-2">{description}</p>
+          </div>
+        </div>
+        <ErrorMessage
+          message={error}
+          title={`Failed to load ${title.toLowerCase()}`}
+          onRetry={refetch}
+        />
+      </div>
     )
   }
 
-  // Handle empty state
-  if (tenders.length === 0) {
+  // Handle empty state (only show if not loading and no tenders)
+  if (!loading && tenders.length === 0) {
     const defaultEmptyState = {
       title: `No ${title.toLowerCase()}`,
       description: emptyStateConfig?.description || "Get started by creating your first tender",
@@ -165,12 +176,16 @@ export default function TenderListPage({
       {/* Info Banner */}
       {infoBanner && <div>{infoBanner}</div>}
 
-      {/* Tender List */}
+      {/* Tender List - Render immediately, show loading state inside if needed */}
+      {/* Pass bids data to avoid re-fetching */}
       <AllTendersList
         tenders={tenders}
         showAllStatuses={showAllStatuses}
         JMBOnly={JMBOnly}
         onTenderDeleted={refetch}
+        tendersLoading={loading}
+        bids={role === "contractor" ? bidsQuery.bids : []}
+        bidsLoading={role === "contractor" ? bidsQuery.loading : false}
       />
     </div>
   )

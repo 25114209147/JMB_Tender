@@ -18,7 +18,7 @@ export function useMyBids(
   pageSize: number = 10
 ): UseMyBidsResult {
   const [bids, setBids] = useState<Bid[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(page > 0)
   const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [currentPage, setCurrentPage] = useState(page)
@@ -60,7 +60,7 @@ export function useMyBids(
 
   useEffect(() => {
     fetchBids()
-  }, [fetchBids])
+  }, [fetchBids, page, pageSize])
 
   return {
     bids,

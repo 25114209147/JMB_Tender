@@ -134,6 +134,12 @@ export function useCurrentUser(): UseCurrentUserResult {
     }
   }
 
+  const refetchUser = async () => {
+    // Clear cache to force fresh data fetch
+    clearUserCache()
+    await fetchUser()
+  }
+
   useEffect(() => {
     mountedRef.current = true
     fetchUser()
@@ -147,6 +153,6 @@ export function useCurrentUser(): UseCurrentUserResult {
     user,
     loading,
     error,
-    refetch: fetchUser,
+    refetch: refetchUser,
   }
 }
