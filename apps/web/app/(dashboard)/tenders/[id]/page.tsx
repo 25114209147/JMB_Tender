@@ -48,7 +48,7 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
 
   // Only JMB/Admin can see the full list of bids
   const canViewAllBids = user && (role === "admin" || role === "JMB")
-  const { bids, loading: bidsLoading, error: bidsError, refetch: refetchBids } = useTenderBids(
+  const { bids, loading: bidsLoading, error: bidsError, updateBidStatus } = useTenderBids(
     canViewAllBids ? tenderId : null,
     1,
     100
@@ -60,7 +60,8 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
     setProcessingId(bidId)
     try {
       await awardBid(bidId)
-      await refetchBids()
+      // Optimistically update the bid status
+      updateBidStatus(bidId, "awarded")
     } catch (error) {
       console.error("Failed to award bid:", error)
     } finally {
@@ -72,7 +73,8 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
     setProcessingId(bidId)
     try {
       await rejectBid(bidId)
-      await refetchBids()
+      // Optimistically update the bid status
+      updateBidStatus(bidId, "rejected")
     } catch (error) {
       console.error("Failed to reject bid:", error)
     } finally {

@@ -25,12 +25,12 @@ export default function AllBidsPage() {
 
   // Fetch all bids once (no filters) - use for both stats and display
   const bidsFilters = useMemo(() => ({ page: 1, page_size: 100 }), [])
-  const { bids: allBids, loading: bidsLoading, error: bidsError, total, refetch } = useBids(bidsFilters)
+  const { bids: allBids, loading: bidsLoading, error: bidsError, total, updateBidStatus } = useBids(bidsFilters)
 
-  // fetch bids by owned tenders
+  // fetch bids by owned tenders (only for JMB)
   const shouldFetchTenders = role === "JMB"
   const tendersFilters = useMemo(
-    () => (shouldFetchTenders ? { page: 1, page_size: 100 } : { page: 1, page_size: 0 }),
+    () => (shouldFetchTenders ? { page: 1, page_size: 100 } : { page: 0, page_size: 0 }),
     [shouldFetchTenders]
   )
   const { tenders: myTenders, loading: tendersLoading, error: tendersError } = useTenders(tendersFilters)
@@ -95,8 +95,8 @@ export default function AllBidsPage() {
     try {
       const result = await awardBid(bidId)
       if (result) {
-        // Force refetch to get updated data
-        await refetch()
+        // Optimistically update the bid status
+        updateBidStatus(bidId, "awarded")
       }
     } catch (error) {
       console.error("Failed to award bid:", error)
@@ -110,8 +110,8 @@ export default function AllBidsPage() {
     try {
       const result = await rejectBid(bidId)
       if (result) {
-        // Force refetch to get updated data
-        await refetch()
+        // Optimistically update the bid status
+        updateBidStatus(bidId, "rejected")
       }
     } catch (error) {
       console.error("Failed to reject bid:", error)

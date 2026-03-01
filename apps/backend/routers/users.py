@@ -140,6 +140,26 @@ async def get_current_user_profile(current_user: User = Depends(get_current_user
     return UserResponse.model_validate(current_user)
 
 
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user_by_id(
+    user_id: int,
+    current_user: User = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get a specific user by ID (Admin only)
+    """
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalars().first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+    
+    return UserResponse.model_validate(user)
+
 
 @router.patch("/me", response_model=UserResponse)
 async def update_user_profile(
