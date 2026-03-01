@@ -23,28 +23,51 @@ interface AllTendersListProps {
   showAllStatuses?: boolean
   JMBOnly?: boolean
   onTenderDeleted?: () => void // Callback to refresh the list after deletion
+  tendersLoading?: boolean // Whether tenders are still loading
+  bids?: Array<{ tender_id: number }> // Pre-fetched bids data (optional, will fetch if not provided)
+  bidsLoading?: boolean // Whether bids are still loading
 }
 
 export default function AllTendersList({ 
   tenders: tendersProp,
   showAllStatuses = false,
   JMBOnly = false,
-  onTenderDeleted
+  onTenderDeleted,
+  tendersLoading = false,
+  bids: bidsProp,
+  bidsLoading: bidsLoadingProp
 }: AllTendersListProps) {
   const { role } = useRole()
   const { user } = useCurrentUser()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [tenderToDelete, setTenderToDelete] = useState<number | null>(null)
   
-  // Use real hook to get contractor's bids (ONLY if contractor role)
-  const bidsQuery = useMyBids(1, 100)
-  const bids = role === "contractor" ? bidsQuery.bids : []
+  // Use provided bids if available, otherwise fetch (fallback for backward compatibility)
+  const bidsQuery = useMyBids(
+    bidsProp !== undefined ? 0 : (role === "contractor" ? 1 : 0), 
+    100
+  )
+  const bids = bidsProp !== undefined 
+    ? (role === "contractor" ? bidsProp : [])
+    : (role === "contractor" ? bidsQuery.bids : [])
+  const bidsLoading = bidsLoadingProp !== undefined
+    ? (role === "contractor" ? bidsLoadingProp : false)
+    : (role === "contractor" ? bidsQuery.loading : false)
+  
+  // Create a Set for O(1) lookup performance
+  const appliedTenderIds = useMemo(() => {
+    if (role !== "contractor" || bidsLoading) return new Set<number>()
+    return new Set(bids.map(bid => bid.tender_id))
+  }, [bids, bidsLoading, role])
   
   // Check if current contractor has applied to a tender (using real data)
   // Only contractors can apply, so return false for all other roles
-  const hasContractorApplied = (tenderId: number): boolean => {
+  // Return null if still loading to show loading state
+  // Use Set for O(1) lookup instead of O(n) array search
+  const hasContractorApplied = (tenderId: number): boolean | null => {
     if (role !== "contractor") return false
-    return bids.some(bid => bid.tender_id === tenderId)
+    if (bidsLoading) return null // Still loading - show loading state
+    return appliedTenderIds.has(tenderId)
   }
 
   const isJMBTender = (tender: Tender): boolean => {
@@ -144,7 +167,13 @@ export default function AllTendersList({
     if (role === "contractor") {
       if (tender.status === "open") {
         const hasApplied = hasContractorApplied(tender.id as number)
-        const actions = hasApplied ? (
+        const actions = hasApplied === null ? (
+          // Still loading bids - show loading state
+          <Button size="sm" variant="outline" disabled className="gap-1.5 cursor-not-allowed">
+            <span className="hidden sm:inline">Loading...</span>
+            <span className="sm:hidden">...</span>
+          </Button>
+        ) : hasApplied ? (
           <Button size="sm" variant="outline" disabled className="gap-1.5 cursor-not-allowed">
             <CheckCircle2 className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Applied</span>
@@ -226,6 +255,18 @@ export default function AllTendersList({
       </p>
     </div>
   )
+
+  // Show loading spinner only if tenders are loading AND we have no tenders yet
+  if (tendersLoading && filteredTenders.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+          <p className="text-muted-foreground">Loading tenders...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

@@ -10,7 +10,7 @@
 import { useMemo } from "react"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 import { type SummaryCardData } from "@/components/dashboard/dashboard-summary-card"
-import { CheckCircle, CircleDollarSign, FileText, List, SquarePen } from "lucide-react"
+import { CheckCircle, FileText, List, SquarePen } from "lucide-react"
 
 export function useJMBDashboardCards(): SummaryCardData[] {
   const { stats } = useDashboardStats()

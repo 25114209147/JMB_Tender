@@ -3,13 +3,11 @@
 import { use, useState, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ChevronLeft, CheckCircle2, Users, FileText, Award, XCircle, Filter, TrendingDown, TrendingUp, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ViewTenderDetails from "../components/view-tender-details"
-import { FormData } from "@/data/create-tender-form"
 import { useRole } from "@/contexts/role-context"
 import { useTender } from "@/hooks/use-tender"
 import { useTenderBids } from "@/hooks/use-tender-bids"
@@ -17,12 +15,10 @@ import { useCurrentUser } from "@/hooks/use-current-user"
 import { useMyBids } from "@/hooks/use-my-bids"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorMessage } from "@/components/ui/error-message"
-import { EmptyState } from "@/components/ui/empty-state"
 import { BidFiltersMobile } from "@/components/bid/bid-filters-mobile"
 import { BidListUnified } from "@/components/bid/bid-list-unified"
 import { StatMiniCard } from "@/components/shared/stat-mini-card"
 import { awardBid, rejectBid } from "@/lib/bids"
-import { cn } from "@/lib/utils"
 import PageHeader from "@/components/shared/page-header"
 
 export default function TenderViewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -118,78 +114,102 @@ export default function TenderViewPage({ params }: { params: Promise<{ id: strin
         <p className="text-muted-foreground"> {tender.property_name}</p>
       </header>
 
-      {/* 3. MAIN CONTENT TABS */}
-      <Tabs defaultValue="details" className="w-full">
-        <div className="flex items-center justify-between mb-1">
-          <TabsList>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            {canViewAllBids && (
-              <TabsTrigger value="bids">
-                Bids <Badge variant="secondary">({bids?.length || 0})</Badge>
-              </TabsTrigger>
-            )}
-          </TabsList>
-          <div className="flex gap-2">
-            {role === "contractor" && !hasApplied && tender.status === "open" && (
-              <Link href={`/tenders/${tender.id}/apply`}>
-                <Button>Apply Now</Button>
-              </Link>
-            )}
-            {canEdit && (
-              <Link href={`/tenders/${tender.id}/edit`}>
-                <Button variant="outline" className="cursor-pointer">Edit Tender</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-
-        <TabsContent value="details" className="pt-4">
-          <Card>
-            <CardContent className="pt-6">
-              <ViewTenderDetails formData={tender as any} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="bids" className="pt-4 space-y-4">
-          {/* Filters - Mobile-friendly */}
-          <BidFiltersMobile
-            statusFilter={bidStatusFilter}
-            onStatusChange={setBidStatusFilter}
-            onClearFilters={() => {
-              setBidStatusFilter("all")
-              setBidSortBy("date-desc")
-            }}
-            allBids={bids || []}
-            showTenderFilter={false}
-            showSortBy={true}
-            sortBy={bidSortBy}
-            onSortChange={setBidSortBy}
-          />
-
-          {/* Stats Overview */}
-          {canViewAllBids && tender.total_bids && tender.total_bids > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatMiniCard label="Total Bids" value={tender.total_bids || 0} color="blue" />
-              <StatMiniCard label="Lowest Bid" value={`RM ${tender.lowest_bid?.toLocaleString()}`} color="green" />
-              <StatMiniCard label="Average" value={`RM ${tender.average_bid?.toLocaleString()}`} color="purple" />
-              <StatMiniCard label="Highest" value={`RM ${tender.highest_bid?.toLocaleString()}`} color="orange" />
+      {/* 3. MAIN CONTENT */}
+      <div className="space-y-6">
+        {canViewAllBids ? (
+          // JMB/Admin View: Show Tabs for both Details and Bids
+          <Tabs defaultValue="details" className="w-full">
+            <div className="flex items-center justify-between mb-4 border-b pb-2">
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="bids">
+                  Bids <Badge variant="secondary" className="ml-2">({bids?.length || 0})</Badge>
+                </TabsTrigger>
+              </TabsList>
+              {canEdit && (
+                <Link href={`/tenders/${tender.id}/edit`}>
+                  <Button variant="outline" size="sm" className="cursor-pointer">Edit Tender</Button>
+                </Link>
+              )}
             </div>
-          )}
 
-          {/* Bids List */}
-          <BidListUnified
-            bids={filteredBids}
-            statusFilter={bidStatusFilter}
-            showActions={true}
-            role={role}
-            processingId={processingId}
-            onAward={handleAward}
-            onReject={handleReject}
-            showTenderLink={false}
-          />
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="details" className="pt-0">
+              <Card>
+                <CardContent className="pt-6">
+                  <ViewTenderDetails formData={tender as any} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="bids" className="pt-0 space-y-4">
+              {/* Filters - Mobile-friendly */}
+              <BidFiltersMobile
+                statusFilter={bidStatusFilter}
+                onStatusChange={setBidStatusFilter}
+                onClearFilters={() => {
+                  setBidStatusFilter("all")
+                  setBidSortBy("date-desc")
+                }}
+                allBids={bids || []}
+                showTenderFilter={false}
+                showSortBy={true}
+                sortBy={bidSortBy}
+                onSortChange={setBidSortBy}
+              />
+
+              {/* Stats Overview */}
+              {bids && bids.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <StatMiniCard label="Total Bids" value={tender.total_bids || 0} color="blue" />
+                  <StatMiniCard 
+                    label="Lowest Bid" 
+                    value={tender.lowest_bid ? `RM ${tender.lowest_bid.toLocaleString()}` : 'N/A'} 
+                    color="green" 
+                  />
+                  <StatMiniCard 
+                    label="Average" 
+                    value={tender.average_bid ? `RM ${tender.average_bid.toLocaleString()}` : 'N/A'} 
+                    color="purple" 
+                  />
+                  <StatMiniCard 
+                    label="Highest" 
+                    value={tender.highest_bid ? `RM ${tender.highest_bid.toLocaleString()}` : 'N/A'} 
+                    color="orange" 
+                  />
+                </div>
+              )}
+
+              {/* Bids List */}
+              <BidListUnified
+                bids={filteredBids}
+                statusFilter={bidStatusFilter}
+                showActions={true}
+                role={role}
+                processingId={processingId}
+                onAward={handleAward}
+                onReject={handleReject}
+                showTenderLink={false}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          // Contractor View: No Tabs, just show details directly
+          <div className="space-y-4">
+            <div className="flex justify-end">
+              {role === "contractor" && !hasApplied && tender.status === "open" && (
+                <Link href={`/tenders/${tender.id}/apply-bid`}>
+                  <Button className="cursor-pointer">Apply Now</Button>
+                </Link>
+              )}
+            </div>
+            <Card>
+              <CardContent className="pt-6">
+                <ViewTenderDetails formData={tender as any} />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

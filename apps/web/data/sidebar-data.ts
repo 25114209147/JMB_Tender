@@ -83,12 +83,12 @@ export function getNavItemsForRole(role: UserRole): readonly NavItem[] {
         icon: CircleDollarSign,
         iconColor: "text-teal-800",
       },
-      {
-        title: "Drafts",
-        url: "/dashboard/contractor/drafts",
-        icon: SquarePen,
-        iconColor: "text-amber-800",
-      },
+      // {
+      //   title: "Drafts",
+      //   url: "/dashboard/contractor/drafts",
+      //   icon: SquarePen,
+      //   iconColor: "text-amber-800",
+      // },
     ],
     admin: [
       {
