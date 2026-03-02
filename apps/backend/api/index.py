@@ -7,10 +7,10 @@ sys.path.insert(0, backend_dir)
 os.chdir(backend_dir)
 
 # Import FastAPI app
-from main import app
+from main import app as fastapi_app
 
 # Use Mangum to wrap FastAPI for Vercel/AWS Lambda compatibility
 from mangum import Mangum
 
-# Create handler with lifespan disabled (Vercel handles this differently)
-handler = Mangum(app, lifespan="off")
+# Create handler - Vercel expects it to be named 'app'
+app = Mangum(fastapi_app, lifespan="off")
