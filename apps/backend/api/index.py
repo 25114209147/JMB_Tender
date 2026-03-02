@@ -1,16 +1,18 @@
 import sys
 import os
 
-# Add parent directory to path
+# Get backend directory
 backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, backend_dir)
-os.chdir(backend_dir)
 
-# Import FastAPI app
-from main import app as fastapi_app
+# Add to Python path without changing directory
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
 
-# Use Mangum to wrap FastAPI for Vercel/AWS Lambda compatibility
+# Import app using absolute import path
+from main import app
+
+# Wrap with Mangum for Vercel compatibility
 from mangum import Mangum
 
-# Create handler - Vercel expects it to be named 'app'
-app = Mangum(fastapi_app, lifespan="off")
+# Export handler - Vercel requires this exact name
+handler = Mangum(app, lifespan="off")
