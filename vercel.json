@@ -20,7 +20,7 @@
       "dest": "/$1"
     }
   ],
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --frozen-lockfile",
   "functions": {
     "api/**/*.py": {
       "memory": 1024,
