@@ -14,27 +14,31 @@ class Base(DeclarativeBase):
 
 # Database URL builder
 def get_standard_url() -> str:
-    mode = os.getenv("DB_MODE", "sqlite").lower()
-
-    if mode == "sqlite":
-        path = os.getenv("SQLITE_PATH", "./my_project_database.db")
-        logger.info(f"Using SQLite (async): {path}")
-        return f"sqlite+aiosqlite:///{path}"
-
-    # Check for Vercel Supabase integration variables first
+    # PRIORITY 1: Check for Vercel Supabase integration variables FIRST (before DB_MODE)
     postgres_url = os.getenv("POSTGRES_URL") or os.getenv("POSTGRES_URL_NON_POOLING")
     if postgres_url:
         # Vercel provides connection string, convert to asyncpg format if needed
         if postgres_url.startswith("postgresql://"):
             # Convert to asyncpg format
             url = postgres_url.replace("postgresql://", "postgresql+asyncpg://")
-            logger.info("Using Vercel Supabase integration (POSTGRES_URL)")
-            print(f"Database URL: {url[:50]}...")  # Log partial URL for security
+            logger.info("✅ Using Vercel Supabase integration (POSTGRES_URL)")
+            print(f"✅ Database URL detected: {url[:60]}...")  # Log partial URL for security
             return url
         elif postgres_url.startswith("postgresql+asyncpg://"):
-            logger.info("Using Vercel Supabase integration (POSTGRES_URL)")
-            print(f"Database URL: {postgres_url[:50]}...")
+            logger.info("✅ Using Vercel Supabase integration (POSTGRES_URL)")
+            print(f"✅ Database URL detected: {postgres_url[:60]}...")
             return postgres_url
+        else:
+            logger.warning(f"⚠️ POSTGRES_URL found but format unexpected: {postgres_url[:50]}...")
+    
+    # PRIORITY 2: Check DB_MODE (only if POSTGRES_URL not found)
+    logger.info("POSTGRES_URL not found, checking DB_MODE and individual variables...")
+    mode = os.getenv("DB_MODE", "sqlite").lower()
+
+    if mode == "sqlite":
+        path = os.getenv("SQLITE_PATH", "./my_project_database.db")
+        logger.info(f"Using SQLite (async): {path}")
+        return f"sqlite+aiosqlite:///{path}"
 
     # Fall back to individual environment variables (Vercel or manual setup)
     user = os.getenv("POSTGRES_USER") or os.getenv("DB_USER")
