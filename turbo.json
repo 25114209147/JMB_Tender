@@ -5,7 +5,17 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "DB_MODE",
+        "SECRET_KEY",
+        "ALGORITHM",
+        "ACCESS_TOKEN_EXPIRE_MINUTES",
+        "NEXT_PUBLIC_API_URL",
+        "POSTGRES_URL",
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
