@@ -3,12 +3,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.models import OAuthFlows, OAuthFlowPassword
 from fastapi.security import OAuth2PasswordBearer
 from contextlib import asynccontextmanager
+import logging
 from routers import users, tenders, bids
 from database import create_all_tables
 
+logger = logging.getLogger(__name__)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await create_all_tables()
+    # Try to create tables, but don't fail if it doesn't work (e.g., in serverless)
+    try:
+        await create_all_tables()
+        logger.info("Database tables initialized successfully")
+    except Exception as e:
+        logger.warning(f"Failed to initialize database tables (this is OK in serverless): {e}")
+        # Don't raise - allow the app to start even if tables already exist
     yield
 
 app = FastAPI(
