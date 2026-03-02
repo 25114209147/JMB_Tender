@@ -1,6 +1,5 @@
 "use client"
 
-import { BenefitsSection } from "@/components/landing-page/benefits-section"
 import { CategoriesSection } from "@/components/landing-page/categories-section"
 import { CtaSection } from "@/components/landing-page/CTA-section"
 import LandingPageHeroSection from "@/components/landing-page/hero-section"
@@ -14,7 +13,6 @@ export default function Home() {
       <LandingHeader/>
       <LandingPageHeroSection />
       <HowItWorks />
-      <BenefitsSection />
       <CategoriesSection />
       <TrustSection />
       <CtaSection />

@@ -1,47 +1,54 @@
-// components/landing/TrustSection.tsx
-import { Card, CardContent } from "@/components/ui/card";
-import { ShieldCheck, FileText, Lock, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Lock, CheckCircle2 } from "lucide-react";
 
 const trustItems = [
   {
     icon: ShieldCheck,
     title: "SSM Verified",
-    desc: "All users verified via SSM registration for maximum trust.",
-  },
-  {
-    icon: FileText,
-    title: "Act 757 Compliant",
-    desc: "Designed in full compliance with Strata Management Act 2013.",
+    desc: "All users verified via SSM registration for maximum trust and compliance.",
   },
   {
     icon: Lock,
     title: "Secure & Encrypted",
-    desc: "All documents stored with role-based access and encryption.",
+    desc: "All documents stored with role-based access and enterprise-grade encryption.",
   },
   {
     icon: CheckCircle2,
     title: "No Hidden Fees",
-    desc: "Free registration and basic use — transparent pricing only.",
+    desc: "Free registration and basic use — transparent pricing with no surprises.",
   },
 ];
 
 export function TrustSection() {
   return (
-    <section className="py-20 md:py-32 bg-muted/40">
-      <div className="container mx-auto px-6 lg:px-8 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-16">Built for Trust & Compliance</h2>
+    <section className="py-20 md:py-28 bg-background border-y">
+      <div className="container mx-auto px-6 max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-foreground">
+            Built for Trust & Security
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Enterprise-grade security and compliance for your tender management needs
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 max-w-6xl mx-auto">
+        {/* Trust Items Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {trustItems.map((item, i) => (
-            <Card key={i} className="border-primary/10">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                  <item.icon className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-muted-foreground">{item.desc}</p>
-              </CardContent>
-            </Card>
+            <div 
+              key={i} 
+              className="flex flex-col items-center text-center p-6 rounded-xl bg-muted/50 border border-primary-700/80 transition-all duration-300 hover:bg-muted hover:border-primary/20"
+            >
+              <div className="w-14 h-14 rounded-xl bg-background border flex items-center justify-center mb-4">
+                <item.icon className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">
+                {item.title}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
           ))}
         </div>
       </div>
