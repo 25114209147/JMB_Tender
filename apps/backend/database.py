@@ -14,25 +14,6 @@ class Base(DeclarativeBase):
 
 # Database URL builder
 def get_standard_url() -> str:
-    # PRIORITY 1: Check for Vercel Supabase integration variables FIRST (before DB_MODE)
-    postgres_url = os.getenv("POSTGRES_URL") or os.getenv("POSTGRES_URL_NON_POOLING")
-    if postgres_url:
-        # Vercel provides connection string, convert to asyncpg format if needed
-        if postgres_url.startswith("postgresql://"):
-            # Convert to asyncpg format
-            url = postgres_url.replace("postgresql://", "postgresql+asyncpg://")
-            logger.info("✅ Using Vercel Supabase integration (POSTGRES_URL)")
-            print(f"✅ Database URL detected: {url[:60]}...")  # Log partial URL for security
-            return url
-        elif postgres_url.startswith("postgresql+asyncpg://"):
-            logger.info("✅ Using Vercel Supabase integration (POSTGRES_URL)")
-            print(f"✅ Database URL detected: {postgres_url[:60]}...")
-            return postgres_url
-        else:
-            logger.warning(f"⚠️ POSTGRES_URL found but format unexpected: {postgres_url[:50]}...")
-    
-    # PRIORITY 2: Check DB_MODE (only if POSTGRES_URL not found)
-    logger.info("POSTGRES_URL not found, checking DB_MODE and individual variables...")
     mode = os.getenv("DB_MODE", "sqlite").lower()
 
     if mode == "sqlite":
@@ -40,23 +21,20 @@ def get_standard_url() -> str:
         logger.info(f"Using SQLite (async): {path}")
         return f"sqlite+aiosqlite:///{path}"
 
-    # Fall back to individual environment variables (Vercel or manual setup)
-    user = os.getenv("POSTGRES_USER") or os.getenv("DB_USER")
-    password = os.getenv("POSTGRES_PASSWORD") or os.getenv("DB_PASSWORD")
-    host = os.getenv("POSTGRES_HOST") or os.getenv("DB_HOST", "localhost")
-    port = os.getenv("POSTGRES_PORT") or os.getenv("DB_PORT", "5432")
-    db_name = os.getenv("POSTGRES_DATABASE") or os.getenv("DB_NAME", "jmb_tender")
-    
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    host = os.getenv("DB_HOST", "localhost")
+    port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME", "jmb_tender")
     print(f"DB_MODE={mode}, DB_USER={user}, DB_HOST={host}, DB_PORT={port}, DB_NAME={db_name}")
 
     if not all([user, password, db_name]):
-        raise ValueError("Missing database credentials. Need POSTGRES_USER/DB_USER, POSTGRES_PASSWORD/DB_PASSWORD, and POSTGRES_DATABASE/DB_NAME")
+        raise ValueError("Missing DB_USER, DB_PASSWORD or DB_NAME in .env")
 
     if mode == "supabase":
-        # Check for Vercel SUPABASE_URL or manual SUPABASE_URL
-        supabase_host = os.getenv("SUPABASE_URL") or host
-        if supabase_host and supabase_host != "localhost":
-            host = supabase_host
+        host = os.getenv("SUPABASE_URL")
+        if not host:
+            raise ValueError("SUPABASE_URL required when DB_MODE=supabase")
         logger.info("Using Supabase")
 
     elif mode == "proxy":
@@ -67,7 +45,7 @@ def get_standard_url() -> str:
         logger.info("Using local PostgreSQL")
 
     url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db_name}"
-    print(f"Database URL: {url[:50]}...")  # Log partial URL for security
+    print(url)
     return url
 
 # Cloud SQL Connector (optional, for GCP users)
